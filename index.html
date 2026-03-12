@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2179785225331533" crossorigin="anonymous"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CoinRewards — Earn While You Learn</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:'Space Grotesk',sans-serif}
+    .df{font-family:'Syne',sans-serif}
+    .gt{background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .coin-glow{box-shadow:0 0 40px rgba(99,102,241,.3),0 0 80px rgba(16,185,129,.1)}
+    .ch{transition:transform .3s,box-shadow .3s}
+    .ch:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,.4)}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+    .fl{animation:float 3s ease-in-out infinite}
+    @keyframes pg{0%,100%{opacity:.6}50%{opacity:1}}
+    .pg{animation:pg 2s ease-in-out infinite}
+    .hero-bg{background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(99,102,241,.2) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(16,185,129,.1) 0%,transparent 60%)}
+    .sc{background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(16,185,129,.05));border:1px solid rgba(99,102,241,.2)}
+    #mm{transition:max-height .35s ease,opacity .3s ease;max-height:0;opacity:0;overflow:hidden}
+    #mm.open{max-height:480px;opacity:1}
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+
+  <!-- NAV -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-slate-950/95 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+      <a href="index.html" class="flex items-center gap-2 flex-shrink-0">
+        <span class="text-xl sm:text-2xl">🪙</span>
+        <span class="df text-lg sm:text-xl font-bold gt">CoinRewards</span>
+      </a>
+      <!-- Desktop links -->
+      <div class="hidden md:flex items-center gap-6 text-sm text-slate-400">
+        <a href="articles.html" class="hover:text-white transition-colors">Articles</a>
+        <a href="leaderboard.html" class="hover:text-white transition-colors">Leaderboard</a>
+        <a href="chat.html" class="hover:text-white transition-colors">Chat</a>
+        <a href="about.html" class="hover:text-white transition-colors">About</a>
+      </div>
+      <!-- Desktop CTAs -->
+      <div class="hidden md:flex items-center gap-3">
+        <a href="login.html" id="navLogin" class="text-sm text-slate-400 hover:text-white transition-colors">Login</a>
+        <a href="dashboard.html" id="navDash" class="hidden text-sm bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition-colors">Dashboard</a>
+        <a href="login.html" id="navStart" class="text-sm bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-medium transition-colors">Get Started</a>
+      </div>
+      <!-- Mobile -->
+      <div class="flex md:hidden items-center gap-3">
+        <a href="login.html" id="mobAuth" class="text-sm font-semibold text-emerald-400 py-1 px-2">Login</a>
+        <button onclick="toggleNav()" aria-label="Menu" class="w-10 h-10 flex flex-col justify-center items-center gap-[5px] bg-slate-800 border border-slate-700 rounded-lg">
+          <span class="block w-5 h-0.5 bg-white rounded transition-all duration-300"></span>
+          <span class="block w-5 h-0.5 bg-white rounded transition-all duration-300"></span>
+          <span class="block w-5 h-0.5 bg-white rounded transition-all duration-300"></span>
+        </button>
+      </div>
+    </div>
+    <!-- Mobile menu -->
+    <div id="mm" class="md:hidden border-t border-slate-800 bg-slate-950/98">
+      <div class="px-4 py-3 space-y-1">
+        <a href="articles.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800 px-4 py-3.5 rounded-xl text-sm font-medium transition-colors">📚 Articles</a>
+        <a href="leaderboard.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800 px-4 py-3.5 rounded-xl text-sm font-medium transition-colors">🏆 Leaderboard</a>
+        <a href="chat.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800 px-4 py-3.5 rounded-xl text-sm font-medium transition-colors">🌍 Global Chat</a>
+        <a href="about.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800 px-4 py-3.5 rounded-xl text-sm font-medium transition-colors">ℹ️ About</a>
+        <div class="pt-2 border-t border-slate-800">
+          <a href="login.html" class="block text-center bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-3.5 rounded-xl text-sm font-semibold transition-colors">Get Started Free →</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero-bg pt-28 sm:pt-32 pb-16 sm:pb-24 px-4">
+    <div class="max-w-5xl mx-auto text-center">
+      <div class="inline-flex items-center gap-2 bg-indigo-900/40 border border-indigo-700/40 text-indigo-300 text-xs font-medium px-3 sm:px-4 py-2 rounded-full mb-6 sm:mb-8">
+        <span class="w-2 h-2 bg-emerald-400 rounded-full pg flex-shrink-0"></span>
+        1,284 users active right now
+      </div>
+      <h1 class="df font-extrabold leading-[1.12] mb-5 sm:mb-6 text-[2.3rem] sm:text-5xl md:text-6xl lg:text-7xl">
+        Read Articles.<br/>
+        <span class="gt">Earn Coins.</span><br/>
+        Get Rewarded.
+      </h1>
+      <p class="text-base sm:text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
+        CoinRewards turns your reading habit into real value. Explore curated articles, earn coins for every minute spent learning, and redeem them for exciting rewards.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-sm sm:max-w-none mx-auto">
+        <a href="login.html" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 sm:px-8 py-4 rounded-xl font-semibold text-base sm:text-lg transition-all hover:scale-105 coin-glow text-center">
+          Start Earning Free →
+        </a>
+        <a href="articles.html" class="bg-slate-800 hover:bg-slate-700 text-white px-6 sm:px-8 py-4 rounded-xl font-semibold text-base sm:text-lg border border-slate-700 text-center transition-colors">
+          Browse Articles
+        </a>
+      </div>
+    </div>
+    <div class="flex justify-center mt-12 sm:mt-16">
+      <div class="fl bg-slate-900 border border-slate-700 rounded-2xl px-7 sm:px-10 py-5 sm:py-6 coin-glow text-center shadow-2xl">
+        <div class="text-4xl sm:text-5xl mb-2">🪙</div>
+        <div class="text-2xl sm:text-3xl font-bold text-emerald-400">+100</div>
+        <div class="text-slate-400 text-sm mt-1">Daily bonus claimed!</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="py-12 sm:py-16 px-4 border-y border-slate-800">
+    <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+      <div class="sc rounded-2xl p-5 sm:p-6 text-center ch">
+        <div class="text-3xl mb-2">🔥</div>
+        <div class="text-2xl sm:text-3xl font-bold" id="statUsers">1,284</div>
+        <div class="text-slate-400 text-sm mt-1">Active Users Today</div>
+      </div>
+      <div class="sc rounded-2xl p-5 sm:p-6 text-center ch">
+        <div class="text-3xl mb-2">💰</div>
+        <div class="text-2xl sm:text-3xl font-bold text-emerald-400" id="statCoins">240,000</div>
+        <div class="text-slate-400 text-sm mt-1">Coins Distributed Today</div>
+      </div>
+      <div class="sc rounded-2xl p-5 sm:p-6 text-center ch">
+        <div class="text-3xl mb-2">📚</div>
+        <div class="text-2xl sm:text-3xl font-bold text-indigo-400" id="statArticles">3,420</div>
+        <div class="text-slate-400 text-sm mt-1">Articles Read Today</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="py-14 sm:py-24 px-4">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-10 sm:mb-16">
+        <h2 class="df text-3xl sm:text-4xl font-bold mb-3">How It Works</h2>
+        <p class="text-slate-400 text-base sm:text-lg">Three simple steps to start earning</p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-8">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 ch text-center">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-900/50 border border-indigo-700/50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl sm:text-3xl">📖</div>
+          <div class="text-indigo-400 text-xs font-semibold uppercase tracking-widest mb-2">Step 1</div>
+          <h3 class="text-lg font-bold mb-2">Read Articles</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Browse our curated collection. Spend 30 seconds to unlock your coin reward.</p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 ch text-center">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 bg-emerald-900/50 border border-emerald-700/50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl sm:text-3xl">🪙</div>
+          <div class="text-emerald-400 text-xs font-semibold uppercase tracking-widest mb-2">Step 2</div>
+          <h3 class="text-lg font-bold mb-2">Earn Coins</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">50 coins per article (up to 5 daily) plus 100 coins from the daily bonus.</p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 ch text-center">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 bg-purple-900/50 border border-purple-700/50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl sm:text-3xl">🎁</div>
+          <div class="text-purple-400 text-xs font-semibold uppercase tracking-widest mb-2">Step 3</div>
+          <h3 class="text-lg font-bold mb-2">Redeem Rewards</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Exchange coins for real cash. Starting from ₹10 for just 1000 coins.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="py-12 sm:py-16 px-4 bg-slate-900/50">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-10 sm:mb-14">
+        <h2 class="df text-3xl sm:text-4xl font-bold mb-3">Everything You Need</h2>
+        <p class="text-slate-400 text-base sm:text-lg">A platform built to reward your curiosity</p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 ch flex gap-4 items-start"><span class="text-2xl flex-shrink-0">⚡</span><div><h3 class="font-bold mb-1">Daily Streak Bonus</h3><p class="text-slate-400 text-sm leading-relaxed">Claim 100 coins every 24 hours. Keep streaks to maximize earnings.</p></div></div>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 ch flex gap-4 items-start"><span class="text-2xl flex-shrink-0">🏆</span><div><h3 class="font-bold mb-1">Leaderboard</h3><p class="text-slate-400 text-sm leading-relaxed">Compete with thousands of readers worldwide for top spots.</p></div></div>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 ch flex gap-4 items-start"><span class="text-2xl flex-shrink-0">🌍</span><div><h3 class="font-bold mb-1">Global Chat</h3><p class="text-slate-400 text-sm leading-relaxed">Connect with fellow learners around the world in real-time.</p></div></div>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 ch flex gap-4 items-start"><span class="text-2xl flex-shrink-0">🔒</span><div><h3 class="font-bold mb-1">Secure Platform</h3><p class="text-slate-400 text-sm leading-relaxed">Enterprise-grade security protects your account and earnings.</p></div></div>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 ch flex gap-4 items-start"><span class="text-2xl flex-shrink-0">📱</span><div><h3 class="font-bold mb-1">Mobile Friendly</h3><p class="text-slate-400 text-sm leading-relaxed">Earn on the go. Works perfectly on any device or screen size.</p></div></div>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 ch flex gap-4 items-start"><span class="text-2xl flex-shrink-0">💎</span><div><h3 class="font-bold mb-1">Real Rewards</h3><p class="text-slate-400 text-sm leading-relaxed">Coins convert to real cash. No gimmicks, no hidden fees.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-14 sm:py-24 px-4">
+    <div class="max-w-3xl mx-auto text-center">
+      <div class="bg-gradient-to-br from-indigo-900/40 to-emerald-900/20 border border-indigo-700/30 rounded-2xl sm:rounded-3xl p-8 sm:p-12">
+        <div class="text-4xl sm:text-5xl mb-4 sm:mb-6">🚀</div>
+        <h2 class="df text-3xl sm:text-4xl font-bold mb-3 sm:mb-4">Ready to Start Earning?</h2>
+        <p class="text-slate-400 text-base sm:text-lg mb-7 sm:mb-8">Join over 50,000 readers who turn learning into rewards every day.</p>
+        <a href="login.html" class="inline-block bg-indigo-600 hover:bg-indigo-500 text-white px-8 sm:px-10 py-4 rounded-xl font-bold text-base sm:text-lg transition-all hover:scale-105 w-full sm:w-auto text-center">
+          Create Free Account →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800 py-8 sm:py-10 px-4">
+    <div class="max-w-5xl mx-auto flex flex-col items-center gap-5 sm:flex-row sm:justify-between">
+      <div class="flex items-center gap-2"><span class="text-xl">🪙</span><span class="df font-bold gt">CoinRewards</span></div>
+      <div class="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm text-slate-400">
+        <a href="about.html" class="hover:text-white transition-colors">About</a>
+        <a href="terms.html" class="hover:text-white transition-colors">Terms</a>
+        <a href="privacy.html" class="hover:text-white transition-colors">Privacy</a>
+        <a href="chat.html" class="hover:text-white transition-colors">Chat</a>
+        <a href="leaderboard.html" class="hover:text-white transition-colors">Leaderboard</a>
+      </div>
+      <div class="text-xs text-slate-500 text-center">© 2024 CoinRewards. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    function toggleNav(){document.getElementById('mm').classList.toggle('open')}
+    document.querySelectorAll('#mm a').forEach(a=>a.addEventListener('click',()=>document.getElementById('mm').classList.remove('open')));
+    function animateCount(el,target){let s=0,step=target/(2000/16);const iv=setInterval(()=>{s=Math.min(s+step,target);el.textContent=Math.floor(s).toLocaleString();if(s>=target)clearInterval(iv);},16);}
+    new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){animateCount(document.getElementById('statUsers'),1284);animateCount(document.getElementById('statCoins'),240000);animateCount(document.getElementById('statArticles'),3420);}}),{threshold:.3}).observe(document.getElementById('statUsers'));
+    (async()=>{const u=await Auth.getUser();if(u){document.getElementById('navLogin')?.classList.add('hidden');document.getElementById('navStart')?.classList.add('hidden');document.getElementById('navDash')?.classList.remove('hidden');const m=document.getElementById('mobAuth');m.textContent='Dashboard';m.href='dashboard.html';}})();
+  </script>
+</body>
+</html>

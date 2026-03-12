@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2179785225331533" crossorigin="anonymous"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Articles — CoinRewards | Earn Coins Reading</title>
+  <meta name="description" content="Read curated articles on education, technology, finance and more. Earn coins for every article you read on CoinRewards."/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>*{box-sizing:border-box}body{font-family:'Space Grotesk',sans-serif}.df{font-family:'Syne',sans-serif}.gt{background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.ch{transition:transform .3s,box-shadow .3s}.ch:hover{transform:translateY(-3px);box-shadow:0 15px 35px rgba(0,0,0,.4)}.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}</style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-6">
+
+  <!-- Nav — works for both guests and logged-in users -->
+  <nav class="sticky top-0 z-50 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+    <a href="index.html" class="flex items-center gap-2 flex-shrink-0">
+      <span class="text-xl">🪙</span>
+      <span class="df font-bold gt text-sm sm:text-base">CoinRewards</span>
+    </a>
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Guest buttons -->
+      <div id="guestNav" class="flex items-center gap-2">
+        <a href="login.html" class="text-slate-400 hover:text-white text-sm transition-colors">Login</a>
+        <a href="login.html" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors">Join Free</a>
+      </div>
+      <!-- Logged-in buttons -->
+      <div id="userNav" class="hidden flex items-center gap-2">
+        <div class="flex items-center gap-1.5 bg-slate-800 px-3 py-2 rounded-xl">
+          <span>🪙</span><span class="font-bold text-emerald-400 text-sm" id="topBarCoins">---</span>
+        </div>
+        <a href="dashboard.html" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors">Dashboard</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+
+    <!-- Header -->
+    <div class="mb-6 sm:mb-8">
+      <h1 class="df text-3xl sm:text-4xl font-bold mb-2">📚 Browse Articles</h1>
+      <p class="text-slate-400 text-sm sm:text-base">Read any article free. <span class="text-emerald-400 font-semibold">Login to earn 50 coins</span> per article — up to 5/day.</p>
+
+      <!-- Guest CTA banner -->
+      <div id="guestBanner" class="mt-4 bg-gradient-to-r from-indigo-900/50 to-emerald-900/30 border border-indigo-700/40 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <div class="font-semibold text-sm mb-0.5">🎁 Earn coins while you read!</div>
+          <div class="text-slate-400 text-xs">Create a free account to start earning rewards for reading.</div>
+        </div>
+        <a href="login.html" class="flex-shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors whitespace-nowrap">Start Earning Free →</a>
+      </div>
+
+      <!-- Logged-in progress -->
+      <div id="userProgress" class="hidden mt-3 flex flex-wrap items-center gap-3">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm">Today: <span id="todayCount" class="font-bold text-emerald-400">-</span> / 5 articles</div>
+        <div class="flex gap-1.5" id="progressDots"></div>
+      </div>
+    </div>
+
+    <!-- AdSense banner -->
+    <div class="mb-6">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2179785225331533" data-ad-slot="" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="flex gap-2 mb-6 sm:mb-8 overflow-x-auto no-scrollbar pb-1">
+      <button onclick="fc('All')" class="filter-btn flex-shrink-0 bg-indigo-600 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium" data-cat="All">All</button>
+      <button onclick="fc('Education')" class="filter-btn flex-shrink-0 bg-slate-800 border border-slate-700 text-slate-400 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium" data-cat="Education">🎓 Education</button>
+      <button onclick="fc('Technology')" class="filter-btn flex-shrink-0 bg-slate-800 border border-slate-700 text-slate-400 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium" data-cat="Technology">💻 Technology</button>
+      <button onclick="fc('Finance')" class="filter-btn flex-shrink-0 bg-slate-800 border border-slate-700 text-slate-400 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium" data-cat="Finance">💰 Finance</button>
+      <button onclick="fc('Lifestyle')" class="filter-btn flex-shrink-0 bg-slate-800 border border-slate-700 text-slate-400 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium" data-cat="Lifestyle">🌿 Lifestyle</button>
+      <button onclick="fc('Psychology')" class="filter-btn flex-shrink-0 bg-slate-800 border border-slate-700 text-slate-400 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium" data-cat="Psychology">🧠 Psychology</button>
+    </div>
+
+    <!-- Article grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" id="articlesGrid"></div>
+
+    <!-- Footer CTA for guests -->
+    <div id="footerCTA" class="mt-10 text-center bg-gradient-to-br from-indigo-900/40 to-emerald-900/20 border border-indigo-700/30 rounded-2xl p-8">
+      <div class="text-4xl mb-3">🪙</div>
+      <h2 class="df text-2xl font-bold mb-2">Start Earning While You Read</h2>
+      <p class="text-slate-400 text-sm mb-5">Join 50,000+ readers earning real rewards every day. Free to join, always.</p>
+      <a href="login.html" class="inline-block bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3.5 rounded-xl font-bold transition-all hover:scale-105">Create Free Account →</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 py-6 px-4 mt-8">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+      <div class="flex items-center gap-2"><span>🪙</span><span class="df font-bold gt">CoinRewards</span></div>
+      <div class="flex gap-4">
+        <a href="index.html" class="hover:text-white transition-colors">Home</a>
+        <a href="about.html" class="hover:text-white transition-colors">About</a>
+        <a href="terms.html" class="hover:text-white transition-colors">Terms</a>
+        <a href="privacy.html" class="hover:text-white transition-colors">Privacy</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/coins.js"></script>
+  <script src="js/articles.js"></script>
+  <script>
+    let currentUser=null,claimedIds=[],todayCount=0,allArticles=[],activeCategory='All';
+    const CC={'Education':'bg-blue-900/50 text-blue-300 border-blue-700/40','Technology':'bg-purple-900/50 text-purple-300 border-purple-700/40','Finance':'bg-emerald-900/50 text-emerald-300 border-emerald-700/40','Lifestyle':'bg-green-900/50 text-green-300 border-green-700/40','Psychology':'bg-orange-900/50 text-orange-300 border-orange-700/40'};
+
+    function fc(cat){
+      activeCategory=cat;
+      document.querySelectorAll('.filter-btn').forEach(b=>{
+        b.className=`filter-btn flex-shrink-0 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${b.dataset.cat===cat?'bg-indigo-600 text-white':'bg-slate-800 border border-slate-700 text-slate-400 hover:text-white'}`;
+      });
+      render();
+    }
+
+    function render(){
+      const filtered=activeCategory==='All'?allArticles:allArticles.filter(a=>a.category===activeCategory);
+      document.getElementById('articlesGrid').innerHTML=filtered.map(a=>{
+        const cl=claimedIds.includes(a.id);
+        const cc=CC[a.category]||'bg-slate-800 text-slate-300';
+        const badge=cl?'<div class="absolute top-2.5 right-2.5 bg-emerald-600 text-white text-xs font-bold px-2 py-1 rounded-lg">✓ Earned</div>'
+          :currentUser?'<div class="absolute top-2.5 right-2.5 bg-indigo-600 text-white text-xs font-bold px-2 py-1 rounded-lg">+50 🪙</div>'
+          :'<div class="absolute top-2.5 right-2.5 bg-slate-700 text-slate-300 text-xs font-bold px-2 py-1 rounded-lg">Free Read</div>';
+        return `<a href="article-view.html?id=${a.id}" class="ch block bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden${cl?' opacity-70':''}">
+          <div class="relative"><img src="${a.image}" alt="${a.title}" class="w-full h-40 sm:h-44 object-cover" loading="lazy"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>${badge}</div>
+          <div class="p-4 sm:p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="border px-2 py-0.5 rounded-md font-semibold uppercase tracking-wider text-[0.6rem] ${cc}">${a.category}</span>
+              <span class="text-slate-500 text-xs">⏱ ${a.readTime}</span>
+            </div>
+            <h3 class="font-bold text-sm sm:text-base mb-1.5 leading-snug">${a.title}</h3>
+            <p class="text-slate-400 text-xs leading-relaxed line-clamp-2">${a.excerpt}</p>
+          </div>
+        </a>`;
+      }).join('');
+    }
+
+    async function init(){
+      allArticles = Articles.getAll();
+
+      // Check auth without redirecting
+      const user = await Auth.getUser();
+      currentUser = user;
+
+      if(user){
+        // Logged-in UI
+        document.getElementById('guestNav').classList.add('hidden');
+        document.getElementById('userNav').classList.remove('hidden');
+        document.getElementById('guestBanner').classList.add('hidden');
+        document.getElementById('userProgress').classList.remove('hidden');
+        document.getElementById('footerCTA').classList.add('hidden');
+
+        document.getElementById('topBarCoins').textContent=(await Coins.getBalance(user.id)).toLocaleString();
+        todayCount=await Articles.getTodayClaimedCount(user.id);
+        document.getElementById('todayCount').textContent=todayCount;
+        document.getElementById('progressDots').innerHTML=Array.from({length:5},(_,i)=>`<div class="w-3.5 h-3.5 rounded-full ${i<todayCount?'bg-emerald-500':'bg-slate-700'}"></div>`).join('');
+        const{data:r}=await supabaseClient.from('article_rewards').select('article_id').eq('user_id',user.id);
+        claimedIds=r?r.map(x=>x.article_id):[];
+      }
+
+      render();
+    }
+
+    init();
+  </script>
+</body>
+</html>

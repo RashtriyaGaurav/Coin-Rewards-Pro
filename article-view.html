@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2179785225331533" crossorigin="anonymous"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Article — CoinRewards</title>
+  <meta name="description" content="Read this article on CoinRewards and earn coins. Free to read, sign up to earn rewards."/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box}body{font-family:'Space Grotesk',sans-serif}.df{font-family:'Syne',sans-serif}.gt{background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.pf{font-family:'Merriweather',serif}
+    @keyframes fill-bar{from{width:0%}to{width:100%}}.reading-timer{animation:fill-bar 30s linear forwards}
+    .article-content p{margin-bottom:1.25rem;line-height:1.85}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.5)}50%{box-shadow:0 0 0 12px rgba(16,185,129,0)}}.claim-pulse{animation:pulse 2s ease-in-out infinite}
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+
+  <!-- Nav -->
+  <nav class="sticky top-0 z-50 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <a href="articles.html" class="text-slate-400 hover:text-white text-sm flex-shrink-0">← Articles</a>
+      <div class="h-4 w-px bg-slate-700 flex-shrink-0"></div>
+      <a href="index.html" class="flex items-center gap-1.5"><span>🪙</span><span class="df font-bold gt text-sm hidden sm:block">CoinRewards</span></a>
+    </div>
+    <div class="flex items-center gap-2">
+      <!-- Guest -->
+      <div id="guestNav" class="flex items-center gap-2">
+        <a href="login.html" class="text-slate-400 hover:text-white text-xs sm:text-sm transition-colors hidden sm:block">Login</a>
+        <a href="login.html" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-semibold transition-colors">Earn Coins</a>
+      </div>
+      <!-- Logged in -->
+      <div id="userNav" class="hidden items-center gap-1.5 bg-slate-800 px-3 py-2 rounded-xl">
+        <span>🪙</span><span class="font-bold text-emerald-400 text-sm" id="topBarCoins">---</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Reading progress bar -->
+  <div class="fixed top-[57px] sm:top-[65px] left-0 right-0 z-40 h-1 bg-slate-800">
+    <div id="readProg" class="h-1 bg-indigo-500 transition-none" style="width:0%"></div>
+  </div>
+
+  <div id="loadingArticle" class="text-center py-20 text-slate-500"><div class="text-4xl mb-4">📄</div><p>Loading article...</p></div>
+
+  <article id="articleContent" class="hidden max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+    <!-- Hero image -->
+    <div class="rounded-xl sm:rounded-2xl overflow-hidden mb-6 sm:mb-8">
+      <img id="articleImage" src="" alt="" class="w-full h-48 sm:h-64 md:h-80 object-cover"/>
+    </div>
+
+    <!-- Meta -->
+    <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+      <span id="articleCategory" class="text-xs font-bold uppercase tracking-widest bg-indigo-900/50 text-indigo-300 border border-indigo-700/40 px-3 py-1 rounded-lg"></span>
+      <span id="articleReadTime" class="text-slate-400 text-xs sm:text-sm"></span>
+    </div>
+
+    <h1 id="articleTitle" class="df text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight mb-4 sm:mb-6"></h1>
+    <p id="articleExcerpt" class="text-base sm:text-lg text-slate-300 mb-6 sm:mb-8 leading-relaxed border-l-4 border-indigo-600 pl-4 italic"></p>
+
+    <!-- AdSense mid-article -->
+    <div class="my-6">
+      <ins class="adsbygoogle" style="display:block;text-align:center" data-ad-client="ca-pub-2179785225331533" data-ad-slot="" data-ad-format="fluid" data-ad-layout="in-article"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <!-- Article body — fully readable by everyone -->
+    <div class="pf article-content text-slate-300 leading-relaxed text-base sm:text-[1.05rem]" id="articleBody"></div>
+
+    <!-- AdSense after article -->
+    <div class="mt-8">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2179785225331533" data-ad-slot="" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <!-- ── Reward / CTA section ── -->
+    <div class="mt-10 sm:mt-12 border-t border-slate-800 pt-8 sm:pt-10">
+
+      <!-- GUEST: prompt to sign up to claim -->
+      <div id="guestClaim" class="bg-gradient-to-br from-indigo-900/50 to-emerald-900/30 border border-indigo-700/40 rounded-2xl p-6 sm:p-8 text-center">
+        <div class="text-4xl sm:text-5xl mb-4">🪙</div>
+        <h3 class="df text-xl sm:text-2xl font-bold mb-2">Earn 50 Coins for Reading This!</h3>
+        <p class="text-slate-400 text-sm mb-5 max-w-sm mx-auto">You just read this article. Create a free account to claim your 50 coin reward and start earning on every article.</p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a href="login.html" class="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3.5 rounded-xl font-bold transition-all hover:scale-105">🎁 Claim Free Coins →</a>
+          <a href="index.html" class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-3.5 rounded-xl font-semibold transition-colors text-sm">Learn More</a>
+        </div>
+        <p class="text-slate-500 text-xs mt-4">Free forever • No credit card required</p>
+      </div>
+
+      <!-- LOGGED IN: timer → claim flow -->
+      <div id="loggedInReward" class="hidden">
+        <div id="timerCard" class="bg-slate-900 border border-slate-700 rounded-2xl p-5 sm:p-6 text-center">
+          <div class="text-3xl mb-3">⏳</div>
+          <h3 class="font-bold text-lg mb-1">Almost there!</h3>
+          <p class="text-slate-400 text-sm mb-5">Stay on this page for <strong id="secondsLeft" class="text-white">30</strong> more seconds to unlock your reward.</p>
+          <div class="w-full bg-slate-700 rounded-full h-3 sm:h-4 overflow-hidden mb-3">
+            <div id="timerBar" class="reading-timer h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full"></div>
+          </div>
+          <div class="text-xs text-slate-500">Don't close or navigate away</div>
+        </div>
+
+        <div id="alreadyClaimed" class="hidden bg-emerald-900/30 border border-emerald-700/40 rounded-2xl p-5 sm:p-6 text-center">
+          <div class="text-4xl mb-3">✅</div>
+          <h3 class="font-bold text-emerald-400 text-lg mb-1">Already Earned!</h3>
+          <p class="text-slate-400 text-sm mb-4">You've already claimed coins for this article.</p>
+          <a href="articles.html" class="inline-block bg-slate-700 hover:bg-slate-600 px-6 py-2.5 rounded-xl text-sm font-medium transition-colors">Read More Articles →</a>
+        </div>
+
+        <div id="limitReached" class="hidden bg-yellow-900/30 border border-yellow-700/40 rounded-2xl p-5 sm:p-6 text-center">
+          <div class="text-4xl mb-3">🚫</div>
+          <h3 class="font-bold text-yellow-400 text-lg mb-1">Daily Limit Reached</h3>
+          <p class="text-slate-400 text-sm mb-4">You've claimed 5 articles today. Come back tomorrow!</p>
+          <a href="articles.html" class="inline-block bg-slate-700 hover:bg-slate-600 px-6 py-2.5 rounded-xl text-sm font-medium transition-colors">Browse Articles →</a>
+        </div>
+
+        <div id="claimSection" class="hidden bg-gradient-to-br from-emerald-900/40 to-indigo-900/30 border border-emerald-700/40 rounded-2xl p-6 sm:p-8 text-center">
+          <div class="text-4xl sm:text-5xl mb-3 sm:mb-4">🎉</div>
+          <h3 class="df text-xl sm:text-2xl font-bold mb-2">You've Earned It!</h3>
+          <p class="text-slate-400 text-sm mb-5 sm:mb-6">You read this article. Claim your reward now!</p>
+          <button id="claimBtn" onclick="claimReward()" class="claim-pulse bg-emerald-600 hover:bg-emerald-500 text-white px-8 sm:px-10 py-4 rounded-xl font-bold text-base sm:text-lg transition-all hover:scale-105 active:scale-95 w-full sm:w-auto">
+            🪙 Claim 50 Coins
+          </button>
+        </div>
+
+        <div id="successSection" class="hidden bg-gradient-to-br from-emerald-900/40 to-emerald-800/20 border border-emerald-700/40 rounded-2xl p-6 sm:p-8 text-center">
+          <div class="text-4xl sm:text-5xl mb-3 sm:mb-4">🥳</div>
+          <h3 class="df text-xl sm:text-2xl font-bold text-emerald-400 mb-2">+50 Coins Added!</h3>
+          <p class="text-slate-400 text-sm mb-2">New balance: <span id="newBalance" class="text-emerald-400 font-bold">---</span> coins</p>
+          <div class="flex flex-col sm:flex-row gap-3 justify-center mt-5 sm:mt-6">
+            <a href="articles.html" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-sm font-medium transition-colors text-center">Read More</a>
+            <a href="dashboard.html" class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2.5 rounded-xl text-sm font-medium transition-colors text-center">Dashboard</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related articles suggestion -->
+    <div class="mt-10 sm:mt-12 border-t border-slate-800 pt-8">
+      <h3 class="df text-xl font-bold mb-4">More Articles</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="relatedArticles"></div>
+    </div>
+  </article>
+
+  <div class="h-10"></div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 py-6 px-4">
+    <div class="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+      <div class="flex items-center gap-2"><span>🪙</span><span class="df font-bold gt">CoinRewards</span></div>
+      <div class="flex gap-4">
+        <a href="articles.html" class="hover:text-white transition-colors">Articles</a>
+        <a href="about.html" class="hover:text-white transition-colors">About</a>
+        <a href="terms.html" class="hover:text-white transition-colors">Terms</a>
+        <a href="privacy.html" class="hover:text-white transition-colors">Privacy</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/coins.js"></script>
+  <script src="js/articles.js"></script>
+  <script>
+    let currentUser=null, article=null;
+
+    // Reading progress bar
+    window.addEventListener('scroll',()=>{
+      const d=document.documentElement;
+      document.getElementById('readProg').style.width=(d.scrollHeight-d.clientHeight>0?d.scrollTop/(d.scrollHeight-d.clientHeight)*100:0)+'%';
+    });
+
+    async function claimReward(){
+      const btn=document.getElementById('claimBtn');
+      btn.disabled=true; btn.textContent='⏳ Claiming...';
+      const result=await Articles.claimArticleReward(currentUser.id,article.id);
+      if(result.success){
+        document.getElementById('claimSection').classList.add('hidden');
+        document.getElementById('successSection').classList.remove('hidden');
+        document.getElementById('newBalance').textContent=result.newBalance.toLocaleString();
+        document.getElementById('topBarCoins').textContent=result.newBalance.toLocaleString();
+      } else {
+        btn.disabled=false; btn.textContent='🪙 Claim 50 Coins';
+        alert(result.message);
+      }
+    }
+
+    function startTimer(){
+      let s=30;
+      const iv=setInterval(()=>{
+        s--;
+        const el=document.getElementById('secondsLeft');
+        if(el) el.textContent=s;
+        if(s<=0){
+          clearInterval(iv);
+          document.getElementById('timerCard').classList.add('hidden');
+          document.getElementById('claimSection').classList.remove('hidden');
+        }
+      },1000);
+    }
+
+    function renderRelated(currentId){
+      const others=Articles.getAll().filter(a=>a.id!==currentId).slice(0,4);
+      document.getElementById('relatedArticles').innerHTML=others.map(a=>`
+        <a href="article-view.html?id=${a.id}" class="flex gap-3 bg-slate-900 border border-slate-800 rounded-xl p-3 hover:border-slate-600 transition-colors">
+          <img src="${a.image}" alt="${a.title}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0"/>
+          <div class="min-w-0">
+            <div class="text-xs text-indigo-400 font-semibold mb-1">${a.category}</div>
+            <div class="text-sm font-medium leading-snug line-clamp-2">${a.title}</div>
+            <div class="text-slate-500 text-xs mt-1">⏱ ${a.readTime}</div>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    async function init(){
+      const id=new URLSearchParams(window.location.search).get('id');
+      article=Articles.getById(id);
+
+      if(!article){
+        document.getElementById('loadingArticle').innerHTML='<div class="text-5xl mb-4">❌</div><p>Article not found.</p>';
+        return;
+      }
+
+      // Update page metadata
+      document.title=article.title+' — CoinRewards';
+      document.querySelector('meta[name="description"]').content=article.excerpt;
+
+      // Render article content — no auth needed
+      document.getElementById('articleImage').src=article.image;
+      document.getElementById('articleImage').alt=article.title;
+      document.getElementById('articleCategory').textContent=article.category;
+      document.getElementById('articleReadTime').textContent='⏱ '+article.readTime+' read';
+      document.getElementById('articleTitle').textContent=article.title;
+      document.getElementById('articleExcerpt').textContent=article.excerpt;
+      document.getElementById('articleBody').innerHTML=article.content.split('\n\n').map(p=>`<p>${p}</p>`).join('');
+
+      document.getElementById('loadingArticle').classList.add('hidden');
+      document.getElementById('articleContent').classList.remove('hidden');
+
+      renderRelated(article.id);
+
+      // Now check auth — doesn't block article display
+      const user=await Auth.getUser();
+      currentUser=user;
+
+      if(!user){
+        // Guest: show sign-up CTA
+        document.getElementById('guestClaim').classList.remove('hidden');
+        document.getElementById('loggedInReward').classList.add('hidden');
+        return;
+      }
+
+      // Logged in: show coin earning flow
+      document.getElementById('guestNav').classList.add('hidden');
+      document.getElementById('userNav').classList.remove('hidden');
+      document.getElementById('guestClaim').classList.add('hidden');
+      document.getElementById('loggedInReward').classList.remove('hidden');
+      document.getElementById('topBarCoins').textContent=(await Coins.getBalance(user.id)).toLocaleString();
+
+      const todayCount=await Articles.getTodayClaimedCount(user.id);
+      const alreadyClaimed=await Articles.hasClaimedArticle(user.id,article.id);
+
+      if(alreadyClaimed){
+        document.getElementById('timerCard').classList.add('hidden');
+        document.getElementById('alreadyClaimed').classList.remove('hidden');
+        return;
+      }
+      if(todayCount>=5){
+        document.getElementById('timerCard').classList.add('hidden');
+        document.getElementById('limitReached').classList.remove('hidden');
+        return;
+      }
+
+      startTimer();
+    }
+
+    init();
+  </script>
+</body>
+</html>

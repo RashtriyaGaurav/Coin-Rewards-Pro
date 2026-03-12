@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2179785225331533" crossorigin="anonymous"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — CoinRewards</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:'Space Grotesk',sans-serif}
+    .df{font-family:'Syne',sans-serif}
+    .gt{background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero-bg{background:radial-gradient(ellipse 80% 80% at 50% -30%,rgba(99,102,241,.25) 0%,transparent 70%)}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    .fl{animation:float 3s ease-in-out infinite}
+    input:focus{outline:none}
+    .btn-glow{box-shadow:0 0 20px rgba(99,102,241,.4)}
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Nav -->
+  <nav class="px-4 sm:px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2">
+      <span class="text-xl">🪙</span>
+      <span class="df text-lg font-bold gt">CoinRewards</span>
+    </a>
+    <a href="index.html" class="text-sm text-slate-400 hover:text-white transition-colors">← Home</a>
+  </nav>
+
+  <div class="flex-1 flex items-center justify-center px-4 py-10 sm:py-12 hero-bg">
+    <div class="w-full max-w-md">
+      <!-- Header -->
+      <div class="text-center mb-6 sm:mb-8">
+        <div class="fl inline-block text-5xl sm:text-6xl mb-3 sm:mb-4">🪙</div>
+        <h1 class="df text-3xl sm:text-4xl font-bold mb-2">Welcome Back</h1>
+        <p class="text-slate-400 text-sm sm:text-base">Sign in to continue earning coins</p>
+      </div>
+
+      <!-- Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8">
+        <!-- Tabs -->
+        <div class="flex gap-1 bg-slate-800 rounded-xl p-1 mb-5 sm:mb-6">
+          <button id="tabLogin" onclick="switchTab('login')" class="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-indigo-600 text-white transition-all">Sign In</button>
+          <button id="tabSignup" onclick="switchTab('signup')" class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-slate-400 hover:text-white transition-all">Create Account</button>
+        </div>
+
+        <!-- Alert -->
+        <div id="alertBox" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
+
+        <!-- Form -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm text-slate-400 mb-1.5">Email Address</label>
+            <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email"
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"/>
+          </div>
+          <div>
+            <label class="block text-sm text-slate-400 mb-1.5">Password</label>
+            <div class="relative">
+              <input id="passwordInput" type="password" placeholder="••••••••" autocomplete="current-password"
+                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors pr-12"/>
+              <button type="button" onclick="togglePw()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors w-8 h-8 flex items-center justify-center">👁</button>
+            </div>
+          </div>
+          <button id="submitBtn" onclick="handleAuth()"
+            class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3.5 rounded-xl font-semibold transition-all btn-glow hover:scale-[1.02] active:scale-[0.98] mt-1 text-sm sm:text-base">
+            <span id="btnText">Sign In</span>
+            <span id="btnLoader" class="hidden">⏳ Please wait...</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-3 my-5">
+          <div class="flex-1 h-px bg-slate-700"></div>
+          <span class="text-slate-500 text-xs">or</span>
+          <div class="flex-1 h-px bg-slate-700"></div>
+        </div>
+
+        <p class="text-center text-sm text-slate-400">
+          <span id="switchText">Don't have an account?</span>
+          <button id="switchBtn" onclick="switchTab('signup')" class="text-indigo-400 hover:text-indigo-300 font-semibold ml-1">Create one free</button>
+        </p>
+      </div>
+
+      <!-- Perks -->
+      <div class="mt-5 sm:mt-6 grid grid-cols-3 gap-3">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-3 text-center">
+          <div class="text-xl mb-1">🎁</div>
+          <div class="text-xs text-slate-400">Free to join</div>
+        </div>
+        <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-3 text-center">
+          <div class="text-xl mb-1">⚡</div>
+          <div class="text-xs text-slate-400">Daily bonuses</div>
+        </div>
+        <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-3 text-center">
+          <div class="text-xl mb-1">💰</div>
+          <div class="text-xs text-slate-400">Real rewards</div>
+        </div>
+      </div>
+
+      <p class="text-center text-xs text-slate-600 mt-5">By signing up, you agree to our <a href="terms.html" class="underline hover:text-slate-400">Terms</a> and <a href="privacy.html" class="underline hover:text-slate-400">Privacy Policy</a></p>
+    </div>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    let mode = 'login';
+    function switchTab(tab) {
+      mode = tab;
+      const isL = tab === 'login';
+      document.getElementById('tabLogin').className=`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${isL?'bg-indigo-600 text-white':'text-slate-400 hover:text-white'}`;
+      document.getElementById('tabSignup').className=`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${!isL?'bg-indigo-600 text-white':'text-slate-400 hover:text-white'}`;
+      document.getElementById('btnText').textContent = isL ? 'Sign In' : 'Create Account';
+      document.getElementById('switchText').textContent = isL ? "Don't have an account?" : "Already have an account?";
+      document.getElementById('switchBtn').textContent = isL ? 'Create one free' : 'Sign in';
+      document.getElementById('switchBtn').onclick = () => switchTab(isL ? 'signup' : 'login');
+      clearAlert();
+    }
+    function showAlert(msg, type='error') {
+      const b = document.getElementById('alertBox');
+      b.className = `mb-4 p-3 rounded-lg text-sm ${type==='error'?'bg-red-900/50 border border-red-700/50 text-red-300':'bg-emerald-900/50 border border-emerald-700/50 text-emerald-300'}`;
+      b.textContent = msg; b.classList.remove('hidden');
+    }
+    function clearAlert(){document.getElementById('alertBox').classList.add('hidden')}
+    function togglePw(){const i=document.getElementById('passwordInput');i.type=i.type==='password'?'text':'password';}
+    async function handleAuth() {
+      const email = document.getElementById('emailInput').value.trim();
+      const pw = document.getElementById('passwordInput').value;
+      if (!email || !pw){showAlert('Please fill in all fields.');return;}
+      if (pw.length < 6){showAlert('Password must be at least 6 characters.');return;}
+      const btn = document.getElementById('submitBtn');
+      document.getElementById('btnText').classList.add('hidden');
+      document.getElementById('btnLoader').classList.remove('hidden');
+      btn.disabled = true; clearAlert();
+      if (mode === 'login') {
+        const {data,error} = await Auth.signIn(email, pw);
+        if (error){showAlert(error.message.includes('Invalid login')?'Invalid email or password.':error.message);}
+        else{showAlert('Welcome back! Redirecting...','success');setTimeout(()=>window.location.href='dashboard.html',1000);return;}
+      } else {
+        const {data,error} = await Auth.signUp(email, pw);
+        if (error){showAlert(error.message);}
+        else{showAlert('Account created! Check your email to confirm, then sign in.','success');setTimeout(()=>switchTab('login'),2500);return;}
+      }
+      document.getElementById('btnText').classList.remove('hidden');
+      document.getElementById('btnLoader').classList.add('hidden');
+      btn.disabled = false;
+    }
+    document.addEventListener('keydown',e=>{if(e.key==='Enter')handleAuth();});
+    Auth.redirectIfLoggedIn();
+  </script>
+</body>
+</html>

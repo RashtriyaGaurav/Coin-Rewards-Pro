@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2179785225331533" crossorigin="anonymous"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — CoinRewards</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:'Space Grotesk',sans-serif}
+    .df{font-family:'Syne',sans-serif}
+    .gt{background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    @keyframes coin-bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+    .cb{animation:coin-bounce .4s ease}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    .fl{animation:float 3s ease-in-out infinite}
+    .card-glow{box-shadow:0 0 30px rgba(99,102,241,.15)}
+    .claim-btn{transition:all .3s ease}
+    .claim-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 25px rgba(16,185,129,.4)}
+    /* Mobile sidebar overlay */
+    #sideOverlay{transition:opacity .3s;pointer-events:none;opacity:0}
+    #sideOverlay.active{pointer-events:all;opacity:1}
+    #mobileSidebar{transition:transform .3s ease;transform:translateX(-100%)}
+    #mobileSidebar.open{transform:translateX(0)}
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+
+  <!-- Mobile sidebar overlay -->
+  <div id="sideOverlay" class="fixed inset-0 bg-black/60 z-40 lg:hidden" onclick="closeSidebar()"></div>
+
+  <!-- Mobile Sidebar (slide-in) -->
+  <div id="mobileSidebar" class="fixed top-0 left-0 h-full w-72 bg-slate-900 border-r border-slate-800 z-50 lg:hidden flex flex-col p-6">
+    <div class="flex items-center justify-between mb-8">
+      <a href="index.html" class="flex items-center gap-2">
+        <span class="text-2xl">🪙</span>
+        <span class="df text-xl font-bold gt">CoinRewards</span>
+      </a>
+      <button onclick="closeSidebar()" class="text-slate-400 hover:text-white text-2xl leading-none">✕</button>
+    </div>
+    <nav class="flex flex-col gap-2 flex-1">
+      <a href="dashboard.html" class="flex items-center gap-3 bg-indigo-600/20 border border-indigo-700/40 text-indigo-300 px-4 py-3 rounded-xl text-sm font-medium">🏠 Dashboard</a>
+      <a href="articles.html" class="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl text-sm font-medium transition-colors">📚 Articles</a>
+      <a href="redeem.html" class="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl text-sm font-medium transition-colors">🎁 Redeem</a>
+      <a href="leaderboard.html" class="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl text-sm font-medium transition-colors">🏆 Leaderboard</a>
+      <a href="chat.html" class="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl text-sm font-medium transition-colors">🌍 Global Chat</a>
+      <a id="mobAdminLink" href="admin.html" class="hidden flex items-center gap-3 bg-red-900/30 border border-red-700/40 text-red-300 hover:bg-red-900/50 px-4 py-3 rounded-xl text-sm font-medium transition-colors">🔐 Admin Panel</a>
+    </nav>
+    <div class="border-t border-slate-700 pt-4 mt-4">
+      <div class="text-xs text-slate-500 mb-2 truncate" id="sideEmailMob">Loading...</div>
+      <button onclick="Auth.signOut()" class="text-sm text-slate-400 hover:text-red-400 transition-colors">← Sign Out</button>
+    </div>
+  </div>
+
+  <div class="flex min-h-screen">
+    <!-- Desktop Sidebar -->
+    <aside class="hidden lg:flex flex-col w-64 bg-slate-900 border-r border-slate-800 p-6 fixed h-full z-10">
+      <a href="index.html" class="flex items-center gap-2 mb-10">
+        <span class="text-2xl">🪙</span>
+        <span class="df text-xl font-bold gt">CoinRewards</span>
+      </a>
+      <nav class="flex flex-col gap-2 flex-1">
+        <a href="dashboard.html" class="flex items-center gap-3 bg-indigo-600/20 border border-indigo-700/40 text-indigo-300 px-4 py-3 rounded-xl text-sm font-medium">🏠 Dashboard</a>
+        <a href="articles.html" class="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl text-sm font-medium transition-colors">📚 Articles</a>
+        <a href="redeem.html" class="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl text-sm font-medium transition-colors">🎁 Redeem</a>
+        <a href="leaderboard.html" class="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl text-sm font-medium transition-colors">🏆 Leaderboard</a>
+        <a href="chat.html" class="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl text-sm font-medium transition-colors">🌍 Global Chat</a>
+        <a id="deskAdminLink" href="admin.html" class="hidden flex items-center gap-3 bg-red-900/30 border border-red-700/40 text-red-300 hover:bg-red-900/50 px-4 py-3 rounded-xl text-sm font-medium transition-colors">🔐 Admin Panel</a>
+      </nav>
+      <div class="border-t border-slate-700 pt-4">
+        <div class="text-xs text-slate-500 mb-1 truncate" id="sideEmail">Loading...</div>
+        <button onclick="Auth.signOut()" class="text-sm text-slate-400 hover:text-red-400 transition-colors">← Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="lg:ml-64 flex-1 flex flex-col min-w-0">
+      <!-- Top bar -->
+      <div class="sticky top-0 z-30 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <!-- Hamburger (mobile only) -->
+          <button onclick="openSidebar()" class="lg:hidden w-10 h-10 flex items-center justify-center bg-slate-800 border border-slate-700 rounded-lg flex-shrink-0" aria-label="Menu">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div class="min-w-0">
+            <h1 class="df text-xl sm:text-2xl font-bold truncate">Dashboard</h1>
+            <p class="text-slate-400 text-xs sm:text-sm truncate" id="greetingText">Good day!</p>
+          </div>
+        </div>
+        <div class="flex hidden items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div class="flex items-center gap-1.5 sm:gap-2 bg-slate-800 px-3 sm:px-4 py-2 rounded-xl">
+            <span class="text-base sm:text-lg">🪙</span>
+            <span class="font-bold text-emerald-400 text-sm sm:text-base" id="topBarCoins">---</span>
+          </div>
+          <button onclick="Auth.signOut()" class="lg:hidden text-xs text-slate-400 hover:text-red-400 bg-slate-800 px-2.5 py-2 rounded-xl transition-colors border border-slate-700">Out</button>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="p-4 sm:p-6 flex-1 pb-24 lg:pb-6">
+        <div id="loadingState" class="text-center py-16 sm:py-20 text-slate-500">
+          <div class="text-4xl mb-4">⏳</div><p>Loading your dashboard...</p>
+        </div>
+
+        <div id="dashContent" class="hidden space-y-4 sm:space-y-6">
+          <!-- Coin hero -->
+          <div class="card-glow bg-gradient-to-br from-indigo-900/60 to-emerald-900/30 border border-indigo-700/40 rounded-2xl p-6 sm:p-8 text-center">
+            <div class="fl inline-block text-5xl sm:text-6xl mb-3 sm:mb-4" id="coinEmoji">🪙</div>
+            <div class="text-slate-400 text-xs sm:text-sm uppercase tracking-widest mb-1 sm:mb-2">Your Coins</div>
+            <div class="text-5xl sm:text-6xl lg:text-7xl font-extrabold df gt mb-1" id="coinBalance">0</div>
+            <div class="text-slate-400 text-xs sm:text-sm">Total accumulated coins</div>
+          </div>
+
+          <!-- Quick stats -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4 text-center"><div class="text-xl sm:text-2xl mb-1">📅</div><div class="text-base sm:text-lg font-bold" id="statArticlesToday">-</div><div class="text-slate-400 text-xs">Articles Today</div></div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4 text-center"><div class="text-xl sm:text-2xl mb-1">🎯</div><div class="text-base sm:text-lg font-bold text-emerald-400">50</div><div class="text-slate-400 text-xs">Coins/Article</div></div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4 text-center"><div class="text-xl sm:text-2xl mb-1">⚡</div><div class="text-base sm:text-lg font-bold text-indigo-400">100</div><div class="text-slate-400 text-xs">Daily Bonus</div></div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4 text-center"><div class="text-xl sm:text-2xl mb-1">📋</div><div class="text-base sm:text-lg font-bold">5</div><div class="text-slate-400 text-xs">Max/Day</div></div>
+          </div>
+
+          <!-- Daily claim + Quick actions -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <!-- Daily Claim -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-emerald-900/50 border border-emerald-700/50 rounded-xl flex items-center justify-center text-xl flex-shrink-0">⚡</div>
+                <div><h2 class="font-bold text-sm sm:text-base">Daily Reward</h2><p class="text-slate-400 text-xs">+100 coins every 24 hours</p></div>
+              </div>
+              <div id="claimReady" class="hidden">
+                <div class="bg-emerald-900/20 border border-emerald-700/30 rounded-xl p-3 sm:p-4 mb-4 text-center">
+                  <div class="text-2xl sm:text-3xl mb-1">🎉</div>
+                  <div class="font-semibold text-emerald-400 text-sm sm:text-base">Your daily bonus is ready!</div>
+                </div>
+                <button onclick="claimDaily()" class="claim-btn w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 sm:py-3.5 rounded-xl font-semibold text-sm sm:text-base">Claim 100 Coins</button>
+              </div>
+              <div id="claimCountdown" class="hidden">
+                <div class="bg-slate-800 rounded-xl p-3 sm:p-4 mb-4 text-center">
+                  <div class="text-slate-400 text-xs mb-2">Next claim available in</div>
+                  <div class="text-xl sm:text-2xl font-bold font-mono" id="timerDisplay">00:00:00</div>
+                </div>
+                <div class="w-full bg-slate-700 rounded-full h-2"><div id="timerProgress" class="bg-indigo-500 h-2 rounded-full transition-all duration-1000" style="width:0%"></div></div>
+              </div>
+            </div>
+
+            <!-- Quick actions -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6">
+              <h2 class="font-bold mb-4 text-sm sm:text-base">Quick Actions</h2>
+              <div class="grid grid-cols-2 gap-3">
+                <a href="articles.html" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 sm:p-4 text-center transition-colors">
+                  <div class="text-xl sm:text-2xl mb-1">📚</div>
+                  <div class="text-xs font-medium">Articles</div>
+                  <div class="text-emerald-400 text-xs">+50 each</div>
+                </a>
+                <a href="redeem.html" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 sm:p-4 text-center transition-colors">
+                  <div class="text-xl sm:text-2xl mb-1">🎁</div>
+                  <div class="text-xs font-medium">Redeem</div>
+                  <div class="text-indigo-400 text-xs">₹10=1000</div>
+                </a>
+                <a href="leaderboard.html" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 sm:p-4 text-center transition-colors">
+                  <div class="text-xl sm:text-2xl mb-1">🏆</div>
+                  <div class="text-xs font-medium">Rankings</div>
+                  <div class="text-yellow-400 text-xs">Top users</div>
+                </a>
+                <a href="chat.html" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 sm:p-4 text-center transition-colors">
+                  <div class="text-xl sm:text-2xl mb-1">🌍</div>
+                  <div class="text-xs font-medium">Chat</div>
+                  <div class="text-blue-400 text-xs">Live</div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress bars -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6">
+            <h2 class="font-bold mb-4 text-sm sm:text-base">🎯 Progress to Next Reward</h2>
+            <div class="space-y-4">
+              <div>
+                <div class="flex justify-between text-xs sm:text-sm mb-1.5">
+                  <span class="text-slate-400">₹10 Reward (1000 coins)</span>
+                  <span id="prog10Label" class="text-slate-400">0 / 1000</span>
+                </div>
+                <div class="w-full bg-slate-700 rounded-full h-2.5"><div id="prog10Bar" class="bg-indigo-500 h-2.5 rounded-full transition-all duration-500" style="width:0%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs sm:text-sm mb-1.5">
+                  <span class="text-slate-400">₹25 Reward (2500 coins)</span>
+                  <span id="prog25Label" class="text-slate-400">0 / 2500</span>
+                </div>
+                <div class="w-full bg-slate-700 rounded-full h-2.5"><div id="prog25Bar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width:0%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast -->
+      <div id="toast" class="fixed bottom-24 lg:bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:w-auto hidden bg-emerald-700 text-white px-5 py-3 rounded-xl shadow-xl font-medium z-50 text-center sm:text-left"></div>
+
+      <!-- Mobile bottom nav -->
+      <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 flex z-20">
+        <a href="dashboard.html" class="flex-1 flex flex-col items-center py-3 text-indigo-400 text-xs gap-0.5"><span class="text-lg">🏠</span>Home</a>
+        <a href="articles.html" class="flex-1 flex flex-col items-center py-3 text-slate-400 text-xs gap-0.5"><span class="text-lg">📚</span>Articles</a>
+        <a href="redeem.html" class="flex-1 flex flex-col items-center py-3 text-slate-400 text-xs gap-0.5"><span class="text-lg">🎁</span>Redeem</a>
+        <a href="leaderboard.html" class="flex-1 flex flex-col items-center py-3 text-slate-400 text-xs gap-0.5"><span class="text-lg">🏆</span>Top</a>
+        <a href="chat.html" class="flex-1 flex flex-col items-center py-3 text-slate-400 text-xs gap-0.5"><span class="text-lg">🌍</span>Chat</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/coins.js"></script>
+  <script src="js/articles.js"></script>
+  <script>
+    function openSidebar(){document.getElementById('mobileSidebar').classList.add('open');document.getElementById('sideOverlay').classList.add('active');}
+    function closeSidebar(){document.getElementById('mobileSidebar').classList.remove('open');document.getElementById('sideOverlay').classList.remove('active');}
+
+    let currentUser=null,countdownInterval=null;
+    function showToast(msg,color='emerald'){const t=document.getElementById('toast');t.textContent=msg;t.className=`fixed bottom-24 lg:bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:w-auto bg-${color}-700 text-white px-5 py-3 rounded-xl shadow-xl font-medium z-50 text-center sm:text-left`;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),3000);}
+    function updateBalanceUI(coins){
+      document.getElementById('coinBalance').textContent=coins.toLocaleString();
+      document.getElementById('topBarCoins').textContent=coins.toLocaleString();
+      const el=document.getElementById('coinEmoji');el.classList.add('cb');setTimeout(()=>el.classList.remove('cb'),400);
+      document.getElementById('prog10Bar').style.width=Math.min((coins/1000)*100,100)+'%';
+      document.getElementById('prog25Bar').style.width=Math.min((coins/2500)*100,100)+'%';
+      document.getElementById('prog10Label').textContent=`${Math.min(coins,1000).toLocaleString()} / 1000`;
+      document.getElementById('prog25Label').textContent=`${Math.min(coins,2500).toLocaleString()} / 2500`;
+    }
+    function startCountdown(lastClaim){
+      document.getElementById('claimReady').classList.add('hidden');
+      document.getElementById('claimCountdown').classList.remove('hidden');
+      const endTime=new Date(lastClaim).getTime()+24*3600000;
+      countdownInterval=setInterval(()=>{
+        const rem=endTime-Date.now();
+        if(rem<=0){clearInterval(countdownInterval);document.getElementById('claimCountdown').classList.add('hidden');document.getElementById('claimReady').classList.remove('hidden');return;}
+        const h=Math.floor(rem/3600000),m=Math.floor((rem%3600000)/60000),s=Math.floor((rem%60000)/1000);
+        document.getElementById('timerDisplay').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        document.getElementById('timerProgress').style.width=((24*3600000-rem)/(24*3600000)*100)+'%';
+      },1000);
+    }
+    async function claimDaily(){
+      const result=await Coins.claimDaily(currentUser.id);
+      if(result.success){updateBalanceUI(result.newBalance);showToast('🎉 '+result.message);document.getElementById('claimReady').classList.add('hidden');startCountdown(new Date().toISOString());}
+      else showToast(result.message,'red');
+    }
+    async function init(){
+      currentUser=await Auth.requireAuth();if(!currentUser)return;
+      const email=currentUser.email;
+      if(email.toLowerCase()==='rashtriya.73@gmail.com'){
+        document.getElementById('deskAdminLink')?.classList.remove('hidden');
+        document.getElementById('mobAdminLink')?.classList.remove('hidden');
+      }
+      document.getElementById('sideEmail').textContent=email;
+      document.getElementById('sideEmailMob').textContent=email;
+      const h=new Date().getHours();
+      document.getElementById('greetingText').textContent=`${h<12?'Good morning':h<18?'Good afternoon':'Good evening'}, ${email.split('@')[0]}!`;
+      let profile=await Auth.getUserProfile(currentUser.id);
+      if(!profile){await supabaseClient.from('users').insert({id:currentUser.id,email:currentUser.email,coins:0});profile={coins:0,last_claim:null};}
+      updateBalanceUI(profile.coins);
+      const count=await Articles.getTodayClaimedCount(currentUser.id);
+      document.getElementById('statArticlesToday').textContent=`${count}/5`;
+      if(profile.last_claim){const diff=Date.now()-new Date(profile.last_claim).getTime();diff<24*3600000?startCountdown(profile.last_claim):document.getElementById('claimReady').classList.remove('hidden');}
+      else document.getElementById('claimReady').classList.remove('hidden');
+      document.getElementById('loadingState').classList.add('hidden');
+      document.getElementById('dashContent').classList.remove('hidden');
+    }
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2179785225331533" crossorigin="anonymous"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Global Chat — CoinRewards</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box}body{font-family:'Space Grotesk',sans-serif}.df{font-family:'Syne',sans-serif}.gt{background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    #chatMessages::-webkit-scrollbar{width:4px}#chatMessages::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
+    @keyframes msg-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.msg-in{animation:msg-in .25s ease}
+    @keyframes blink{0%,100%{opacity:.5}50%{opacity:1}}.blink{animation:blink 2s ease-in-out infinite}
+    #realtimeStatus.connected{color:#34d399}
+    #realtimeStatus.connecting{color:#fbbf24}
+    #realtimeStatus.error{color:#f87171}
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+  <nav class="sticky top-0 z-50 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <a href="dashboard.html" class="text-slate-400 hover:text-white text-sm flex-shrink-0">← Back</a>
+      <div class="h-4 w-px bg-slate-700 flex-shrink-0"></div>
+      <a href="index.html" class="flex items-center gap-1.5"><span>🪙</span><span class="df font-bold gt text-sm hidden sm:block">CoinRewards</span></a>
+    </div>
+    <div class="flex items-center gap-2 sm:gap-3">
+      <div class="flex items-center gap-1.5 text-xs bg-slate-800 border border-slate-700 px-2.5 sm:px-3 py-1.5 rounded-full">
+        <span class="w-2 h-2 rounded-full blink flex-shrink-0" id="realtimeDot" style="background:#fbbf24"></span>
+        <span id="realtimeStatus" class="connecting hidden sm:block">Connecting...</span>
+      </div>
+      <div class="flex items-center gap-1.5 bg-slate-800 px-3 sm:px-4 py-2 rounded-xl">
+        <span>🪙</span><span class="font-bold text-emerald-400 text-sm" id="topBarCoins">---</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 sm:px-6 py-4 sm:py-6 pb-24 lg:pb-8 min-h-0">
+    <div class="text-center mb-4 sm:mb-6">
+      <h1 class="df text-2xl sm:text-3xl font-bold mb-1">🌍 Global Chat</h1>
+      <p class="text-slate-400 text-xs sm:text-sm">Real-time chat with CoinRewards users worldwide</p>
+    </div>
+
+    <div class="flex-1 flex flex-col bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden min-h-0" style="height:clamp(320px,55vh,600px)">
+      <div class="border-b border-slate-800 px-4 sm:px-5 py-2.5 sm:py-3 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 bg-emerald-400 rounded-full blink"></span>
+          <span class="text-sm font-medium">World Chat</span>
+        </div>
+        <span class="text-slate-500 text-xs hidden sm:block">Max 100 chars per message</span>
+      </div>
+
+      <div id="chatMessages" class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 min-h-0">
+        <div class="text-center text-slate-500 text-sm py-8">Loading messages...</div>
+      </div>
+
+      <div class="border-t border-slate-800 p-3 sm:p-4 flex-shrink-0">
+        <div class="flex gap-2 sm:gap-3">
+          <div class="flex-1 relative min-w-0">
+            <input id="msgInput" type="text" maxlength="100" placeholder="Say something..."
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 sm:px-4 py-3 text-sm placeholder-slate-500 focus:border-indigo-500 focus:outline-none pr-12 transition-colors"/>
+            <span id="charCount" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">0/100</span>
+          </div>
+          <button id="sendBtn" onclick="sendMsg()" class="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-3 sm:px-5 py-3 rounded-xl font-semibold text-sm transition-all hover:scale-105 active:scale-95 flex-shrink-0">
+            <span class="hidden sm:inline">Send →</span>
+            <span class="sm:hidden">→</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-2 mt-2">
+          <div class="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0"></div>
+          <span class="text-xs text-slate-500 truncate">Chatting as <strong id="chatUsername" class="text-slate-400">---</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-3 sm:mt-4 grid grid-cols-3 gap-2 sm:gap-3">
+      <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-2.5 sm:p-3 text-center"><div class="text-base sm:text-lg mb-1">✅</div><div class="text-xs text-slate-400">Be kind</div></div>
+      <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-2.5 sm:p-3 text-center"><div class="text-base sm:text-lg mb-1">🚫</div><div class="text-xs text-slate-400">No spam</div></div>
+      <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-2.5 sm:p-3 text-center"><div class="text-base sm:text-lg mb-1">⚡</div><div class="text-xs text-slate-400">Live chat</div></div>
+    </div>
+  </div>
+
+  <!-- Mobile nav -->
+  <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 flex z-20">
+    <a href="dashboard.html" class="flex-1 flex flex-col items-center py-3 text-slate-400 text-xs gap-0.5"><span class="text-lg">🏠</span>Home</a>
+    <a href="articles.html" class="flex-1 flex flex-col items-center py-3 text-slate-400 text-xs gap-0.5"><span class="text-lg">📚</span>Articles</a>
+    <a href="redeem.html" class="flex-1 flex flex-col items-center py-3 text-slate-400 text-xs gap-0.5"><span class="text-lg">🎁</span>Redeem</a>
+    <a href="leaderboard.html" class="flex-1 flex flex-col items-center py-3 text-slate-400 text-xs gap-0.5"><span class="text-lg">🏆</span>Top</a>
+    <a href="chat.html" class="flex-1 flex flex-col items-center py-3 text-indigo-400 text-xs gap-0.5"><span class="text-lg">🌍</span>Chat</a>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/coins.js"></script>
+  <script src="js/chat.js"></script>
+  <script>
+    let currentUser = null, username = '';
+    // Track message IDs we've already rendered to prevent duplicates
+    const renderedIds = new Set();
+
+    const colors = ['text-indigo-400','text-emerald-400','text-pink-400','text-yellow-400','text-purple-400','text-cyan-400','text-orange-400'];
+    function gc(n){ let h=0; for(let c of n) h=(h*31+c.charCodeAt(0))&0xffffffff; return colors[Math.abs(h)%colors.length]; }
+    function esc(s){ const d=document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+
+    function setRealtimeStatus(status) {
+      const dot = document.getElementById('realtimeDot');
+      const label = document.getElementById('realtimeStatus');
+      if(status === 'SUBSCRIBED') {
+        dot.style.background = '#34d399';
+        label.textContent = 'Live';
+        label.className = 'connected hidden sm:block';
+      } else if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        dot.style.background = '#f87171';
+        label.textContent = 'Offline';
+        label.className = 'error hidden sm:block';
+      } else {
+        dot.style.background = '#fbbf24';
+        label.textContent = 'Connecting...';
+        label.className = 'connecting hidden sm:block';
+      }
+    }
+
+    function renderMsg(msg, isOwn = false) {
+      // Skip if already rendered (prevents duplicates)
+      if(msg.id && renderedIds.has(msg.id)) return;
+      if(msg.id) renderedIds.add(msg.id);
+
+      const c = document.getElementById('chatMessages');
+      // Remove empty state if present
+      const empty = c.querySelector('.empty-state');
+      if(empty) empty.remove();
+
+      const div = document.createElement('div');
+      div.className = `msg-in flex gap-2 sm:gap-3 ${isOwn ? 'flex-row-reverse' : ''}`;
+      const av = msg.username.charAt(0).toUpperCase();
+      const col = gc(msg.username);
+      const time = Chat.formatTime(msg.created_at || new Date().toISOString());
+      div.innerHTML = `
+        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs sm:text-sm font-bold ${col} flex-shrink-0">${av}</div>
+        <div class="${isOwn ? 'items-end' : 'items-start'} flex flex-col max-w-[75%] sm:max-w-xs md:max-w-md">
+          <div class="flex items-center gap-1.5 sm:gap-2 mb-1 ${isOwn ? 'flex-row-reverse' : ''}">
+            <span class="text-xs font-semibold ${col} truncate max-w-[80px] sm:max-w-none">${esc(msg.username)}</span>
+            <span class="text-slate-600 text-xs flex-shrink-0">${time}</span>
+          </div>
+          <div class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm break-words ${isOwn ? 'bg-indigo-600 text-white rounded-tr-sm' : 'bg-slate-800 text-slate-200 rounded-tl-sm'}">${esc(msg.message)}</div>
+        </div>`;
+      c.appendChild(div);
+      c.scrollTop = c.scrollHeight;
+    }
+
+    async function sendMsg() {
+      const inp = document.getElementById('msgInput');
+      const btn = document.getElementById('sendBtn');
+      const msg = inp.value.trim();
+      if(!msg) return;
+
+      btn.disabled = true;
+      inp.value = '';
+      document.getElementById('charCount').textContent = '0/100';
+
+      const result = await Chat.sendMessage(username, msg);
+      btn.disabled = false;
+      inp.focus();
+
+      if(result.success && result.data) {
+        // Render own message immediately from the returned DB row
+        renderMsg(result.data, true);
+      } else if(!result.success) {
+        inp.value = msg; // restore on failure
+        alert('Failed to send message. Please try again.');
+      }
+    }
+
+    async function init() {
+      currentUser = await Auth.requireAuth();
+      if(!currentUser) return;
+
+      username = currentUser.email.split('@')[0];
+      document.getElementById('chatUsername').textContent = username;
+      document.getElementById('topBarCoins').textContent = (await Coins.getBalance(currentUser.id)).toLocaleString();
+
+      // Load existing messages
+      const messages = await Chat.loadMessages(50);
+      const c = document.getElementById('chatMessages');
+      c.innerHTML = '';
+      if(!messages.length) {
+        c.innerHTML = '<div class="empty-state text-center text-slate-500 text-sm py-8">No messages yet. Start the conversation! 👋</div>';
+      } else {
+        messages.forEach(m => renderMsg(m, m.username === username));
+      }
+
+      // Subscribe to realtime — only render messages from OTHER users
+      // (own messages already rendered immediately on send)
+      const sub = supabaseClient
+        .channel('world_chat_realtime')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'world_chat' },
+          (payload) => {
+            if(payload.new) {
+              const isOwn = payload.new.username === username;
+              // renderMsg handles dedup via renderedIds set
+              renderMsg(payload.new, isOwn);
+            }
+          }
+        )
+        .subscribe((status) => {
+          console.log('[Chat] Realtime status:', status);
+          setRealtimeStatus(status);
+        });
+
+      // Input handlers
+      const inp = document.getElementById('msgInput');
+      inp.addEventListener('input', e => {
+        const l = e.target.value.length;
+        const cc = document.getElementById('charCount');
+        cc.textContent = `${l}/100`;
+        cc.className = `absolute right-3 top-1/2 -translate-y-1/2 text-xs ${l > 80 ? 'text-yellow-400' : 'text-slate-500'}`;
+      });
+      inp.addEventListener('keydown', e => {
+        if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

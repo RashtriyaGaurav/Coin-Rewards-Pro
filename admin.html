@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel — CoinRewards</title>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2179785225331533" crossorigin="anonymous"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:'Space Grotesk',sans-serif}
+    .df{font-family:'Syne',sans-serif}
+    .gt{background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    #sideOverlay{transition:opacity .3s;pointer-events:none;opacity:0}
+    #sideOverlay.active{pointer-events:all;opacity:1}
+    #mobileSidebar{transition:transform .3s ease;transform:translateX(-100%)}
+    #mobileSidebar.open{transform:translateX(0)}
+    .tab-btn.active{background:#4f46e5;color:#fff}
+    .tab-btn{transition:all .2s}
+    tr:hover td{background:rgba(99,102,241,.05)}
+    .status-pending{background:rgba(234,179,8,.15);color:#fbbf24;border:1px solid rgba(234,179,8,.3)}
+    .status-approved{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3)}
+    .status-rejected{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+
+  <!-- Access denied screen -->
+  <div id="accessDenied" class="hidden fixed inset-0 bg-slate-950 z-[999] flex items-center justify-center px-4">
+    <div class="text-center max-w-sm">
+      <div class="text-6xl mb-6">🚫</div>
+      <h1 class="df text-3xl font-bold text-red-400 mb-3">Access Denied</h1>
+      <p class="text-slate-400 mb-6">This panel is restricted to administrators only.</p>
+      <a href="dashboard.html" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-semibold transition-colors">← Go to Dashboard</a>
+    </div>
+  </div>
+
+  <!-- Loading screen -->
+  <div id="loadingScreen" class="fixed inset-0 bg-slate-950 z-[998] flex items-center justify-center">
+    <div class="text-center">
+      <div class="text-5xl mb-4">⏳</div>
+      <p class="text-slate-400">Verifying access...</p>
+    </div>
+  </div>
+
+  <!-- Mobile sidebar overlay -->
+  <div id="sideOverlay" class="fixed inset-0 bg-black/60 z-40 lg:hidden" onclick="closeSidebar()"></div>
+
+  <!-- Mobile Sidebar -->
+  <div id="mobileSidebar" class="fixed top-0 left-0 h-full w-72 bg-slate-900 border-r border-slate-800 z-50 lg:hidden flex flex-col p-6">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xl">🪙</span>
+          <span class="df text-lg font-bold gt">CoinRewards</span>
+        </div>
+        <span class="text-xs bg-red-900/50 border border-red-700/40 text-red-300 px-2 py-0.5 rounded-full font-semibold">ADMIN</span>
+      </div>
+      <button onclick="closeSidebar()" class="text-slate-400 hover:text-white text-2xl">✕</button>
+    </div>
+    <nav class="flex flex-col gap-1.5 flex-1">
+      <button onclick="showTab('overview')" class="tab-btn active text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium" data-tab="overview">📊 Overview</button>
+      <button onclick="showTab('users')" class="tab-btn text-slate-400 text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800" data-tab="users">👥 Users</button>
+      <button onclick="showTab('redeems')" class="tab-btn text-slate-400 text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800" data-tab="redeems">🎁 Redeem Requests</button>
+      <button onclick="showTab('chat')" class="tab-btn text-slate-400 text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800" data-tab="chat">💬 Chat Logs</button>
+      <button onclick="showTab('coins')" class="tab-btn text-slate-400 text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800" data-tab="coins">🪙 Adjust Coins</button>
+      <div class="border-t border-slate-700 mt-2 pt-3">
+        <a href="dashboard.html" class="flex items-center gap-3 text-slate-400 hover:text-white px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800 transition-colors">🏠 User Dashboard</a>
+      </div>
+    </nav>
+    <div class="border-t border-slate-700 pt-4">
+      <div class="text-xs text-red-400 font-semibold mb-1">Admin Account</div>
+      <div class="text-xs text-slate-500 truncate" id="mobAdminEmail">---</div>
+      <button onclick="Auth.signOut()" class="text-sm text-slate-400 hover:text-red-400 mt-2 transition-colors">← Sign Out</button>
+    </div>
+  </div>
+
+  <div class="flex min-h-screen">
+    <!-- Desktop Sidebar -->
+    <aside class="hidden lg:flex flex-col w-64 bg-slate-900 border-r border-slate-800 p-6 fixed h-full z-10">
+      <div class="mb-8">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-2xl">🪙</span>
+          <span class="df text-xl font-bold gt">CoinRewards</span>
+        </div>
+        <span class="text-xs bg-red-900/50 border border-red-700/40 text-red-300 px-2 py-0.5 rounded-full font-semibold">ADMIN PANEL</span>
+      </div>
+      <nav class="flex flex-col gap-1.5 flex-1">
+        <button onclick="showTab('overview')" class="tab-btn active text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium" data-tab="overview">📊 Overview</button>
+        <button onclick="showTab('users')" class="tab-btn text-slate-400 text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800" data-tab="users">👥 Users</button>
+        <button onclick="showTab('redeems')" class="tab-btn text-slate-400 text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800" data-tab="redeems">🎁 Redeem Requests</button>
+        <button onclick="showTab('chat')" class="tab-btn text-slate-400 text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800" data-tab="chat">💬 Chat Logs</button>
+        <button onclick="showTab('coins')" class="tab-btn text-slate-400 text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800" data-tab="coins">🪙 Adjust Coins</button>
+        <div class="border-t border-slate-700 mt-2 pt-3">
+          <a href="dashboard.html" class="flex items-center gap-3 text-slate-400 hover:text-white px-4 py-3 rounded-xl text-sm hover:bg-slate-800 transition-colors">🏠 User Dashboard</a>
+        </div>
+      </nav>
+      <div class="border-t border-slate-700 pt-4">
+        <div class="text-xs text-red-400 font-semibold mb-0.5">Admin Account</div>
+        <div class="text-xs text-slate-500 truncate" id="deskAdminEmail">---</div>
+        <button onclick="Auth.signOut()" class="text-sm text-slate-400 hover:text-red-400 mt-2 transition-colors">← Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="lg:ml-64 flex-1 flex flex-col min-w-0">
+      <!-- Top bar -->
+      <div class="sticky top-0 z-30 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <button onclick="openSidebar()" class="lg:hidden w-10 h-10 flex items-center justify-center bg-slate-800 border border-slate-700 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h1 class="df text-xl sm:text-2xl font-bold" id="pageTitle">Overview</h1>
+            <p class="text-slate-500 text-xs hidden sm:block">CoinRewards Administration</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="hidden sm:block text-xs bg-red-900/40 border border-red-700/40 text-red-300 px-3 py-1.5 rounded-full font-semibold">🔐 Admin</span>
+          <button onclick="refreshData()" class="bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white px-3 py-2 rounded-xl text-xs font-medium transition-colors">↻ Refresh</button>
+        </div>
+      </div>
+
+      <!-- Tab content -->
+      <div class="p-4 sm:p-6 flex-1 pb-24 lg:pb-8">
+
+        <!-- OVERVIEW TAB -->
+        <div id="tab-overview" class="tab-content space-y-6">
+
+          <!-- SQL setup warning — shown if RLS blocks admin -->
+          <div id="sqlWarning" class="hidden bg-yellow-900/30 border border-yellow-700/40 rounded-2xl p-4 sm:p-5">
+            <div class="flex gap-3 items-start">
+              <div class="text-2xl flex-shrink-0">⚠️</div>
+              <div class="min-w-0">
+                <div class="font-bold text-yellow-300 text-sm mb-1">Admin SQL policies not set up yet</div>
+                <div class="text-slate-400 text-xs mb-3">The admin panel can't read data because Supabase RLS is blocking it. Run the SQL below in your Supabase SQL Editor to fix this.</div>
+                <details class="text-xs">
+                  <summary class="text-yellow-400 cursor-pointer font-semibold mb-2">Show SQL to run →</summary>
+                  <pre class="bg-slate-950 text-emerald-300 p-3 rounded-lg overflow-x-auto text-xs leading-relaxed mt-2">-- Run this in Supabase Dashboard → SQL Editor
+
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
+  SELECT COALESCE(auth.jwt() ->> 'email', '') = 'rashtriya.73@gmail.com'
+$$;
+
+-- Users: allow admin to update any row
+DROP POLICY IF EXISTS "users_update" ON public.users;
+CREATE POLICY "users_update" ON public.users
+  FOR UPDATE USING (auth.uid() = id OR public.is_admin());
+
+-- Redeems: admin sees all, can update status
+DROP POLICY IF EXISTS "redeems_select" ON public.redeem_requests;
+CREATE POLICY "redeems_select" ON public.redeem_requests
+  FOR SELECT USING (auth.uid() = user_id OR public.is_admin());
+
+DROP POLICY IF EXISTS "redeems_update" ON public.redeem_requests;
+CREATE POLICY "redeems_update" ON public.redeem_requests
+  FOR UPDATE USING (public.is_admin());
+
+-- Chat: admin can delete messages
+DROP POLICY IF EXISTS "chat_delete" ON public.world_chat;
+CREATE POLICY "chat_delete" ON public.world_chat
+  FOR DELETE USING (public.is_admin());</pre>
+                </details>
+                <button onclick="loadOverview()" class="mt-3 bg-yellow-700 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-colors">↻ Retry after running SQL</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+              <div class="text-2xl mb-2">👥</div>
+              <div class="text-2xl sm:text-3xl font-bold" id="stat-total-users">—</div>
+              <div class="text-slate-400 text-xs mt-1">Total Users</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+              <div class="text-2xl mb-2">🪙</div>
+              <div class="text-2xl sm:text-3xl font-bold text-emerald-400" id="stat-total-coins">—</div>
+              <div class="text-slate-400 text-xs mt-1">Total Coins Issued</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+              <div class="text-2xl mb-2">🎁</div>
+              <div class="text-2xl sm:text-3xl font-bold text-yellow-400" id="stat-pending-redeems">—</div>
+              <div class="text-slate-400 text-xs mt-1">Pending Redeems</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+              <div class="text-2xl mb-2">💬</div>
+              <div class="text-2xl sm:text-3xl font-bold text-indigo-400" id="stat-chat-msgs">—</div>
+              <div class="text-slate-400 text-xs mt-1">Chat Messages</div>
+            </div>
+          </div>
+
+          <!-- Recent redeems quick view -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div class="border-b border-slate-800 px-5 py-4 flex items-center justify-between">
+              <h2 class="font-bold text-sm sm:text-base">⏳ Pending Redeem Requests</h2>
+              <button onclick="showTab('redeems')" class="text-xs text-indigo-400 hover:text-indigo-300">View All →</button>
+            </div>
+            <div id="overview-pending" class="divide-y divide-slate-800">
+              <div class="text-center py-8 text-slate-500 text-sm">Loading...</div>
+            </div>
+          </div>
+
+          <!-- Recent signups -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div class="border-b border-slate-800 px-5 py-4 flex items-center justify-between">
+              <h2 class="font-bold text-sm sm:text-base">🆕 Recent Signups</h2>
+              <button onclick="showTab('users')" class="text-xs text-indigo-400 hover:text-indigo-300">View All →</button>
+            </div>
+            <div id="overview-signups" class="divide-y divide-slate-800">
+              <div class="text-center py-8 text-slate-500 text-sm">Loading...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- USERS TAB -->
+        <div id="tab-users" class="tab-content hidden space-y-4">
+          <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+            <p class="text-slate-400 text-sm">All registered users sorted by coins.</p>
+            <input id="userSearch" oninput="filterUsers()" type="text" placeholder="Search by email..." class="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm placeholder-slate-500 focus:border-indigo-500 focus:outline-none w-full sm:w-64"/>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="border-b border-slate-800">
+                  <tr class="text-slate-400 text-xs uppercase tracking-wider">
+                    <th class="text-left px-4 sm:px-5 py-3 font-semibold">#</th>
+                    <th class="text-left px-4 sm:px-5 py-3 font-semibold">Email</th>
+                    <th class="text-left px-4 sm:px-5 py-3 font-semibold">Coins</th>
+                    <th class="text-left px-4 sm:px-5 py-3 font-semibold hidden sm:table-cell">Last Claim</th>
+                    <th class="text-left px-4 sm:px-5 py-3 font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTable" class="divide-y divide-slate-800">
+                  <tr><td colspan="5" class="text-center py-10 text-slate-500">Loading users...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- REDEEMS TAB -->
+        <div id="tab-redeems" class="tab-content hidden space-y-4">
+          <div class="flex flex-wrap gap-2">
+            <button onclick="filterRedeems('all')" class="redeem-filter active bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold" data-filter="all">All</button>
+            <button onclick="filterRedeems('pending')" class="redeem-filter bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-semibold" data-filter="pending">⏳ Pending</button>
+            <button onclick="filterRedeems('approved')" class="redeem-filter bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-semibold" data-filter="approved">✅ Approved</button>
+            <button onclick="filterRedeems('rejected')" class="redeem-filter bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-semibold" data-filter="rejected">❌ Rejected</button>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="border-b border-slate-800">
+                  <tr class="text-slate-400 text-xs uppercase tracking-wider">
+                    <th class="text-left px-4 sm:px-5 py-3 font-semibold">Reward</th>
+                    <th class="text-left px-4 sm:px-5 py-3 font-semibold">Coins</th>
+                    <th class="text-left px-4 sm:px-5 py-3 font-semibold hidden sm:table-cell">Date</th>
+                    <th class="text-left px-4 sm:px-5 py-3 font-semibold">Status</th>
+                    <th class="text-left px-4 sm:px-5 py-3 font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="redeemsTable" class="divide-y divide-slate-800">
+                  <tr><td colspan="5" class="text-center py-10 text-slate-500">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHAT TAB -->
+        <div id="tab-chat" class="tab-content hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <p class="text-slate-400 text-sm">Recent global chat messages.</p>
+            <button onclick="clearAllChat()" class="bg-red-900/40 border border-red-700/40 hover:bg-red-900/60 text-red-300 px-3 py-2 rounded-xl text-xs font-semibold transition-colors">🗑 Clear All Chat</button>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="border-b border-slate-800">
+                  <tr class="text-slate-400 text-xs uppercase tracking-wider">
+                    <th class="text-left px-4 sm:px-5 py-3 font-semibold">Username</th>
+                    <th class="text-left px-4 sm:px-5 py-3 font-semibold">Message</th>
+                    <th class="text-left px-4 sm:px-5 py-3 font-semibold hidden sm:table-cell">Time</th>
+                    <th class="text-left px-4 sm:px-5 py-3 font-semibold">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="chatTable" class="divide-y divide-slate-800">
+                  <tr><td colspan="4" class="text-center py-10 text-slate-500">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- COINS TAB -->
+        <div id="tab-coins" class="tab-content hidden space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Add/Deduct coins -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6">
+              <h2 class="font-bold mb-4 text-base">🪙 Adjust User Coins</h2>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1.5">User Email</label>
+                  <input id="coinUserEmail" type="email" placeholder="user@example.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm placeholder-slate-500 focus:border-indigo-500 focus:outline-none transition-colors"/>
+                </div>
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1.5">Amount</label>
+                  <input id="coinAmount" type="number" placeholder="e.g. 500" min="1" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm placeholder-slate-500 focus:border-indigo-500 focus:outline-none transition-colors"/>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <button onclick="adjustCoins('add')" class="bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-semibold text-sm transition-colors">+ Add Coins</button>
+                  <button onclick="adjustCoins('deduct')" class="bg-red-700 hover:bg-red-600 text-white py-3 rounded-xl font-semibold text-sm transition-colors">− Deduct Coins</button>
+                </div>
+                <div id="coinAdjustMsg" class="hidden p-3 rounded-xl text-sm text-center"></div>
+              </div>
+            </div>
+
+            <!-- Reset daily claim -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6">
+              <h2 class="font-bold mb-4 text-base">⏰ Reset Daily Claim</h2>
+              <p class="text-slate-400 text-sm mb-4 leading-relaxed">Reset a user's last_claim timestamp so they can claim their daily bonus immediately.</p>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1.5">User Email</label>
+                  <input id="resetClaimEmail" type="email" placeholder="user@example.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm placeholder-slate-500 focus:border-indigo-500 focus:outline-none transition-colors"/>
+                </div>
+                <button onclick="resetClaim()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-semibold text-sm transition-colors">Reset Daily Claim</button>
+                <div id="resetClaimMsg" class="hidden p-3 rounded-xl text-sm text-center"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Broadcast message (insert system message to chat) -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6">
+            <h2 class="font-bold mb-4 text-base">📣 Broadcast to Global Chat</h2>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <input id="broadcastMsg" type="text" maxlength="100" placeholder="Type announcement message..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm placeholder-slate-500 focus:border-indigo-500 focus:outline-none transition-colors"/>
+              <button onclick="sendBroadcast()" class="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-colors whitespace-nowrap">📣 Send</button>
+            </div>
+            <div id="broadcastMsg-status" class="hidden mt-3 p-3 rounded-xl text-sm text-center"></div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed bottom-6 right-4 sm:right-6 left-4 sm:left-auto sm:w-auto bg-emerald-700 text-white px-5 py-3 rounded-xl shadow-xl font-medium z-50 text-center sm:text-left text-sm"></div>
+
+  <!-- Confirm modal -->
+  <div id="confirmModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center">
+      <div class="text-4xl mb-4" id="confirmIcon">⚠️</div>
+      <h3 class="df text-xl font-bold mb-2" id="confirmTitle">Confirm Action</h3>
+      <p class="text-slate-400 text-sm mb-6" id="confirmMsg">Are you sure?</p>
+      <div class="flex gap-3">
+        <button onclick="closeConfirm()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-semibold text-sm transition-colors">Cancel</button>
+        <button id="confirmOkBtn" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-semibold text-sm transition-colors">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    const ADMIN_EMAIL = 'rashtriya.73@gmail.com';
+    let allUsers = [], allRedeems = [], currentTab = 'overview', adminUser = null;
+
+    // ── Sidebar ──────────────────────────────────────────────
+    function openSidebar(){document.getElementById('mobileSidebar').classList.add('open');document.getElementById('sideOverlay').classList.add('active');}
+    function closeSidebar(){document.getElementById('mobileSidebar').classList.remove('open');document.getElementById('sideOverlay').classList.remove('active');}
+
+    // ── Toast ────────────────────────────────────────────────
+    function showToast(msg, color='emerald'){
+      const t=document.getElementById('toast');
+      t.textContent=msg;
+      t.className=`fixed bottom-6 right-4 sm:right-6 left-4 sm:left-auto sm:w-auto bg-${color}-700 text-white px-5 py-3 rounded-xl shadow-xl font-medium z-50 text-center sm:text-left text-sm`;
+      t.classList.remove('hidden');
+      setTimeout(()=>t.classList.add('hidden'),4000);
+    }
+
+    // ── Confirm modal ────────────────────────────────────────
+    let confirmCallback = null;
+    function openConfirm(icon, title, msg, btnColor, cb){
+      document.getElementById('confirmIcon').textContent=icon;
+      document.getElementById('confirmTitle').textContent=title;
+      document.getElementById('confirmMsg').textContent=msg;
+      document.getElementById('confirmOkBtn').className=`flex-1 bg-${btnColor}-600 hover:bg-${btnColor}-500 text-white py-3 rounded-xl font-semibold text-sm transition-colors`;
+      confirmCallback=cb;
+      document.getElementById('confirmModal').classList.remove('hidden');
+    }
+    function closeConfirm(){document.getElementById('confirmModal').classList.add('hidden');confirmCallback=null;}
+    document.getElementById('confirmOkBtn').onclick=()=>{if(confirmCallback){confirmCallback();closeConfirm();}};
+
+    // ── Tabs ─────────────────────────────────────────────────
+    function showTab(tab){
+      currentTab=tab;
+      document.querySelectorAll('.tab-content').forEach(el=>el.classList.add('hidden'));
+      document.getElementById(`tab-${tab}`).classList.remove('hidden');
+      document.querySelectorAll('.tab-btn').forEach(btn=>{
+        const isActive=btn.dataset.tab===tab;
+        btn.className=`tab-btn ${isActive?'active':'text-slate-400 hover:bg-slate-800'} text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium`;
+      });
+      const titles={overview:'Overview',users:'All Users',redeems:'Redeem Requests',chat:'Chat Logs',coins:'Adjust Coins'};
+      document.getElementById('pageTitle').textContent=titles[tab]||tab;
+      closeSidebar();
+      loadTabData(tab);
+    }
+
+    async function loadTabData(tab){
+      if(tab==='overview') await loadOverview();
+      else if(tab==='users') await loadUsers();
+      else if(tab==='redeems') await loadRedeems();
+      else if(tab==='chat') await loadChat();
+    }
+
+    function refreshData(){loadTabData(currentTab);}
+
+    // ── Overview ─────────────────────────────────────────────
+    async function loadOverview(){
+      // Fetch all data in parallel
+      const [usersRes, redeemsRes, chatRes] = await Promise.all([
+        supabaseClient.from('users').select('id,email,coins,last_claim').order('coins',{ascending:false}),
+        supabaseClient.from('redeem_requests').select('*').order('created_at',{ascending:false}),
+        supabaseClient.from('world_chat').select('id', { count: 'exact', head: true })
+      ]);
+
+      if(usersRes.error) { console.error('Users error:', usersRes.error); showToast('RLS error — run admin SQL policies in Supabase', 'red'); }
+      if(redeemsRes.error) { console.error('Redeems error:', redeemsRes.error); }
+
+      allUsers = usersRes.data || [];
+      allRedeems = redeemsRes.data || [];
+
+      // Show SQL warning if we got no data due to RLS blocking
+      const sqlWarn = document.getElementById('sqlWarning');
+      if((usersRes.error || allUsers.length === 0) && (redeemsRes.error)){
+        sqlWarn && sqlWarn.classList.remove('hidden');
+      } else {
+        sqlWarn && sqlWarn.classList.add('hidden');
+      }
+      const pending = allRedeems.filter(r => r.status === 'pending');
+      const totalCoins = allUsers.reduce((s, u) => s + (u.coins || 0), 0);
+
+      document.getElementById('stat-total-users').textContent = allUsers.length.toLocaleString();
+      document.getElementById('stat-total-coins').textContent = totalCoins.toLocaleString();
+      document.getElementById('stat-pending-redeems').textContent = pending.length;
+      document.getElementById('stat-chat-msgs').textContent = (chatRes.count || 0).toLocaleString();
+
+      // Pending redeems
+      const pendingEl = document.getElementById('overview-pending');
+      if (!pending.length) {
+        pendingEl.innerHTML = '<div class="text-center py-8 text-slate-500 text-sm">No pending requests 🎉</div>';
+      } else {
+        pendingEl.innerHTML = pending.slice(0, 5).map(r => `
+          <div class="px-4 sm:px-5 py-3.5 flex items-center justify-between gap-3 flex-wrap">
+            <div class="min-w-0 flex-1">
+              <div class="text-sm font-medium truncate">${escHtml(r.reward)}</div>
+              <div class="text-slate-500 text-xs mt-0.5">${new Date(r.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <span class="text-indigo-400 font-bold text-sm">${r.coins_used.toLocaleString()} 🪙</span>
+              <button onclick="updateRedeemStatus('${r.id}','approved',null)" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">✅ Approve</button>
+              <button onclick="updateRedeemStatus('${r.id}','rejected',null)" class="bg-red-700 hover:bg-red-600 active:scale-95 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">❌ Reject</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Recent users
+      const signupsEl = document.getElementById('overview-signups');
+      signupsEl.innerHTML = allUsers.length ? allUsers.slice(0, 5).map(u => `
+        <div class="px-4 sm:px-5 py-3.5 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">${u.email.charAt(0).toUpperCase()}</div>
+            <div class="min-w-0"><div class="text-sm font-medium truncate">${escHtml(u.email)}</div></div>
+          </div>
+          <div class="text-emerald-400 font-bold text-sm flex-shrink-0">${(u.coins||0).toLocaleString()} 🪙</div>
+        </div>
+      `).join('') : '<div class="text-center py-8 text-slate-500 text-sm">No users yet.</div>';
+    }
+
+    // ── Users ────────────────────────────────────────────────
+    async function loadUsers(){
+      const {data, error} = await supabaseClient.from('users').select('*').order('coins',{ascending:false});
+      if(error){ showToast('Failed to load users — check admin RLS policies', 'red'); console.error(error); return; }
+      allUsers = data || [];
+      renderUsersTable(allUsers);
+    }
+
+    function renderUsersTable(users){
+      const tbody = document.getElementById('usersTable');
+      if(!users.length){ tbody.innerHTML='<tr><td colspan="5" class="text-center py-10 text-slate-500">No users found.</td></tr>'; return; }
+      tbody.innerHTML = users.map((u,i) => `
+        <tr>
+          <td class="px-4 sm:px-5 py-3.5 text-slate-400 text-sm">${i+1}</td>
+          <td class="px-4 sm:px-5 py-3.5">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 bg-indigo-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">${u.email.charAt(0).toUpperCase()}</div>
+              <span class="text-sm truncate max-w-[120px] sm:max-w-none">${escHtml(u.email)}</span>
+            </div>
+          </td>
+          <td class="px-4 sm:px-5 py-3.5 text-emerald-400 font-bold text-sm">${(u.coins||0).toLocaleString()}</td>
+          <td class="px-4 sm:px-5 py-3.5 text-slate-400 text-xs hidden sm:table-cell">${u.last_claim ? new Date(u.last_claim).toLocaleDateString('en-IN') : 'Never'}</td>
+          <td class="px-4 sm:px-5 py-3.5">
+            <div class="flex gap-1.5 flex-wrap">
+              <button onclick="showAddCoinsModal('${u.id}','${escHtml(u.email)}',${u.coins||0})" class="bg-emerald-900/50 hover:bg-emerald-800 border border-emerald-700/40 text-emerald-300 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors">+Coins</button>
+              <button onclick="banUser('${u.id}','${escHtml(u.email)}')" class="bg-red-900/40 hover:bg-red-900/60 border border-red-700/40 text-red-300 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors">Ban</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Inline modal for adding coins (avoids prompt() issues in some browsers)
+    let pendingCoinUser = null;
+    function showAddCoinsModal(userId, email, currentCoins){
+      pendingCoinUser = {userId, email, currentCoins};
+      document.getElementById('coinUserEmail').value = email;
+      document.getElementById('coinAmount').value = '';
+      showTab('coins');
+      setTimeout(()=>document.getElementById('coinAmount').focus(), 300);
+    }
+
+    function filterUsers(){
+      const q = document.getElementById('userSearch').value.toLowerCase();
+      renderUsersTable(allUsers.filter(u => u.email.toLowerCase().includes(q)));
+    }
+
+    async function banUser(userId, email){
+      openConfirm('🚫','Ban User',`Reset coins to 0 for ${email}? This cannot be undone.`,'red', async () => {
+        const {error} = await supabaseClient.from('users').update({coins: 0}).eq('id', userId);
+        if(error){ showToast('Ban failed — check admin RLS policies', 'red'); console.error(error); }
+        else { showToast(`✅ ${email} banned (coins reset to 0)`, 'red'); loadUsers(); }
+      });
+    }
+
+    // ── Redeems ──────────────────────────────────────────────
+    let currentRedeemFilter = 'all';
+    async function loadRedeems(){
+      const {data, error} = await supabaseClient.from('redeem_requests').select('*').order('created_at',{ascending:false});
+      if(error){ showToast('Failed to load redeems — check admin RLS policies', 'red'); console.error(error); return; }
+      allRedeems = data || [];
+      filterRedeems(currentRedeemFilter);
+    }
+
+    function filterRedeems(filter){
+      currentRedeemFilter = filter;
+      document.querySelectorAll('.redeem-filter').forEach(b => {
+        b.className = `redeem-filter ${b.dataset.filter===filter?'active bg-indigo-600 text-white':'bg-slate-700 text-slate-300 hover:bg-slate-600'} px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors`;
+      });
+      const filtered = filter==='all' ? allRedeems : allRedeems.filter(r => r.status===filter);
+      renderRedeemsTable(filtered);
+    }
+
+    function renderRedeemsTable(redeems){
+      const tbody = document.getElementById('redeemsTable');
+      if(!redeems.length){ tbody.innerHTML='<tr><td colspan="5" class="text-center py-10 text-slate-500">No requests found.</td></tr>'; return; }
+      tbody.innerHTML = redeems.map(r => `
+        <tr>
+          <td class="px-4 sm:px-5 py-3.5">
+            <div class="text-sm font-medium max-w-[140px] sm:max-w-xs break-words">${escHtml(r.reward)}</div>
+            <div class="text-slate-500 text-xs mt-0.5">ID: ${r.id.slice(0,8)}...</div>
+          </td>
+          <td class="px-4 sm:px-5 py-3.5 text-indigo-400 font-bold text-sm">${r.coins_used.toLocaleString()}</td>
+          <td class="px-4 sm:px-5 py-3.5 text-slate-400 text-xs hidden sm:table-cell">${new Date(r.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'})}</td>
+          <td class="px-4 sm:px-5 py-3.5">
+            <span class="status-${r.status} text-xs px-2 py-1 rounded-lg font-semibold capitalize">${r.status}</span>
+          </td>
+          <td class="px-4 sm:px-5 py-3.5">
+            ${r.status==='pending' ? `
+              <div class="flex gap-1.5">
+                <button onclick="updateRedeemStatus('${r.id}','approved','${r.user_id}')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">✅ Approve</button>
+                <button onclick="updateRedeemStatus('${r.id}','rejected','${r.user_id}')" class="bg-red-700 hover:bg-red-600 active:scale-95 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">❌ Reject</button>
+              </div>
+            ` : '<span class="text-slate-500 text-xs">—</span>'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function updateRedeemStatus(id, status, userId){
+      const label = status==='approved' ? 'Approve' : 'Reject';
+      const req = allRedeems.find(r => r.id===id);
+      const extraMsg = status==='rejected' && req ? ` Coins (${req.coins_used.toLocaleString()}) will be refunded to user.` : '';
+      openConfirm(
+        status==='approved' ? '✅' : '❌',
+        `${label} Request`,
+        `Are you sure you want to ${label.toLowerCase()} this redemption?${extraMsg}`,
+        status==='approved' ? 'emerald' : 'red',
+        async () => {
+          // Update the request status
+          const {error} = await supabaseClient.from('redeem_requests').update({status}).eq('id', id);
+          if(error){ showToast('Update failed — check admin RLS policies', 'red'); console.error(error); return; }
+
+          // If rejected, refund coins to user
+          if(status === 'rejected' && req && req.user_id){
+            const {data: userData} = await supabaseClient.from('users').select('coins').eq('id', req.user_id).single();
+            if(userData){
+              await supabaseClient.from('users').update({coins: userData.coins + req.coins_used}).eq('id', req.user_id);
+            }
+          }
+
+          showToast(`✅ Request ${status}${status==='rejected'?' — coins refunded':''}!`, status==='approved'?'emerald':'red');
+          // Update local cache instantly
+          const idx = allRedeems.findIndex(r => r.id===id);
+          if(idx !== -1) allRedeems[idx].status = status;
+          if(currentTab==='overview') loadOverview();
+          else filterRedeems(currentRedeemFilter);
+        }
+      );
+    }
+
+    // ── Chat ─────────────────────────────────────────────────
+    async function loadChat(){
+      const{data,error}=await supabaseClient.from('world_chat').select('*').order('created_at',{ascending:false}).limit(100);
+      if(error){showToast('Failed to load chat','red');return;}
+      const tbody=document.getElementById('chatTable');
+      if(!data||!data.length){tbody.innerHTML='<tr><td colspan="4" class="text-center py-10 text-slate-500">No messages.</td></tr>';return;}
+      tbody.innerHTML=data.map(m=>`
+        <tr>
+          <td class="px-4 sm:px-5 py-3 text-sm font-medium text-indigo-300">${m.username}</td>
+          <td class="px-4 sm:px-5 py-3 text-sm text-slate-300 max-w-xs">
+            <div class="truncate">${escHtml(m.message)}</div>
+          </td>
+          <td class="px-4 sm:px-5 py-3 text-slate-500 text-xs hidden sm:table-cell">${new Date(m.created_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</td>
+          <td class="px-4 sm:px-5 py-3">
+            <button onclick="deleteMessage('${m.id}')" class="bg-red-900/40 hover:bg-red-900/60 border border-red-700/40 text-red-300 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function deleteMessage(id){
+      const{error}=await supabaseClient.from('world_chat').delete().eq('id',id);
+      if(error)showToast('Delete failed','red');
+      else{showToast('Message deleted');loadChat();}
+    }
+
+    async function clearAllChat(){
+      openConfirm('🗑','Clear All Chat','This will permanently delete ALL chat messages. Cannot be undone.','red', async () => {
+        // Delete all rows — RLS policy allows admin to delete
+        const {error} = await supabaseClient.from('world_chat').delete().gte('created_at', '2000-01-01');
+        if(error){ showToast('Failed — make sure admin chat_delete policy is set up', 'red'); console.error(error); }
+        else { showToast('All chat messages deleted', 'red'); loadChat(); }
+      });
+    }
+
+    // ── Coins ────────────────────────────────────────────────
+    async function adjustCoins(action){
+      const email = document.getElementById('coinUserEmail').value.trim().toLowerCase();
+      const amt = parseInt(document.getElementById('coinAmount').value);
+      const msgEl = document.getElementById('coinAdjustMsg');
+      if(!email || !amt || amt <= 0){ showMsg(msgEl, 'Please fill in all fields correctly.', 'red'); return; }
+
+      const {data: user, error} = await supabaseClient.from('users').select('id,coins').eq('email', email).single();
+      if(error || !user){ showMsg(msgEl, 'User not found. Make sure the email is correct.', 'red'); return; }
+
+      const newCoins = action === 'add' ? (user.coins + amt) : Math.max(0, user.coins - amt);
+      const {error: e2} = await supabaseClient.from('users').update({coins: newCoins}).eq('id', user.id);
+      if(e2){ showMsg(msgEl, 'Update failed — run admin SQL policies first.', 'red'); console.error(e2); return; }
+
+      showMsg(msgEl, `✅ ${action==='add'?'Added':'Deducted'} ${amt.toLocaleString()} coins. New balance: ${newCoins.toLocaleString()}`, 'emerald');
+      document.getElementById('coinUserEmail').value = '';
+      document.getElementById('coinAmount').value = '';
+      // Refresh users table if open
+      if(currentTab === 'users') loadUsers();
+    }
+
+    async function resetClaim(){
+      const email = document.getElementById('resetClaimEmail').value.trim().toLowerCase();
+      const msgEl = document.getElementById('resetClaimMsg');
+      if(!email){ showMsg(msgEl, 'Enter an email address.', 'red'); return; }
+
+      const {data: user, error} = await supabaseClient.from('users').select('id').eq('email', email).single();
+      if(error || !user){ showMsg(msgEl, 'User not found.', 'red'); return; }
+
+      const {error: e2} = await supabaseClient.from('users').update({last_claim: null}).eq('id', user.id);
+      if(e2){ showMsg(msgEl, 'Reset failed — run admin SQL policies first.', 'red'); console.error(e2); return; }
+
+      showMsg(msgEl, '✅ Daily claim reset. User can claim immediately.', 'emerald');
+      document.getElementById('resetClaimEmail').value = '';
+    }
+
+    async function sendBroadcast(){
+      const msg=document.getElementById('broadcastMsg').value.trim();
+      const statusEl=document.getElementById('broadcastMsg-status');
+      if(!msg){showMsg(statusEl,'Enter a message.','red');return;}
+      const{error}=await supabaseClient.from('world_chat').insert({username:'📣 Admin',message:msg});
+      if(error){showMsg(statusEl,'Failed to send.','red');return;}
+      showMsg(statusEl,'✅ Broadcast sent to global chat!','emerald');
+      document.getElementById('broadcastMsg').value='';
+    }
+
+    function showMsg(el,msg,color){
+      el.textContent=msg;
+      el.className=`p-3 rounded-xl text-sm text-center ${color==='emerald'?'bg-emerald-900/40 border border-emerald-700/40 text-emerald-300':'bg-red-900/40 border border-red-700/40 text-red-300'}`;
+      el.classList.remove('hidden');
+      setTimeout(()=>el.classList.add('hidden'),4000);
+    }
+
+    function escHtml(str){const d=document.createElement('div');d.appendChild(document.createTextNode(str));return d.innerHTML;}
+
+    // ── Init ─────────────────────────────────────────────────
+    async function init(){
+      const user=await Auth.getUser();
+      if(!user){window.location.href='login.html';return;}
+      if(user.email.toLowerCase()!==ADMIN_EMAIL){
+        document.getElementById('loadingScreen').classList.add('hidden');
+        document.getElementById('accessDenied').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('deskAdminEmail').textContent=user.email;
+      document.getElementById('mobAdminEmail').textContent=user.email;
+      document.getElementById('loadingScreen').classList.add('hidden');
+      loadOverview();
+    }
+
+    init();
+  </script>
+</body>
+</html>

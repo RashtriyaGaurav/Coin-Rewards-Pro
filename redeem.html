@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2179785225331533" crossorigin="anonymous"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Redeem — CoinRewards</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>*{box-sizing:border-box}body{font-family:'Space Grotesk',sans-serif}.df{font-family:'Syne',sans-serif}.gt{background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.ch{transition:transform .3s,box-shadow .3s}.ch:hover:not(.disabled){transform:translateY(-3px);box-shadow:0 15px 35px rgba(0,0,0,.4)}input:focus{outline:none}</style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-24 lg:pb-8">
+
+  <nav class="sticky top-0 z-50 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <a href="dashboard.html" class="text-slate-400 hover:text-white text-sm flex-shrink-0">← Back</a>
+      <div class="h-4 w-px bg-slate-700 flex-shrink-0"></div>
+      <a href="index.html" class="flex items-center gap-1.5"><span>🪙</span><span class="df font-bold gt text-sm hidden sm:block">CoinRewards</span></a>
+    </div>
+    <div class="flex items-center gap-1.5 bg-slate-800 px-3 sm:px-4 py-2 rounded-xl flex-shrink-0">
+      <span>🪙</span><span class="font-bold text-emerald-400 text-sm sm:text-base" id="topBarCoins">---</span>
+    </div>
+  </nav>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+    <div class="text-center mb-8 sm:mb-12">
+      <div class="text-4xl sm:text-5xl mb-3 sm:mb-4">🎁</div>
+      <h1 class="df text-3xl sm:text-4xl font-bold mb-2 sm:mb-3">Redeem Your Coins</h1>
+      <p class="text-slate-400 text-sm sm:text-base max-w-md mx-auto">Exchange earned coins for real rewards. Reviewed within 24-48 hours.</p>
+    </div>
+
+    <!-- Balance -->
+    <div class="bg-gradient-to-r from-indigo-900/40 to-emerald-900/30 border border-indigo-700/40 rounded-2xl p-5 sm:p-6 mb-6 sm:mb-8 text-center">
+      <div class="text-slate-400 text-xs sm:text-sm mb-1">Your Current Balance</div>
+      <div class="text-4xl sm:text-5xl font-extrabold df gt" id="balanceDisplay">---</div>
+      <div class="text-slate-400 text-xs sm:text-sm mt-1">coins available</div>
+    </div>
+
+    <!-- Reward grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-10" id="rewardGrid"></div>
+
+    <!-- History -->
+    <div>
+      <h2 class="df text-xl sm:text-2xl font-bold mb-4 sm:mb-6">📋 Redemption History</h2>
+      <div id="historyList" class="space-y-3">
+        <div class="text-center py-8 text-slate-500"><div class="text-3xl mb-2">📭</div><p class="text-sm">No redemptions yet.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div id="confirmModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm px-0 sm:px-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-t-2xl sm:rounded-2xl p-6 sm:p-8 w-full sm:max-w-md">
+      <div class="text-center">
+        <div id="modalIcon" class="text-4xl sm:text-5xl mb-3 sm:mb-4">🎁</div>
+        <h3 class="df text-xl sm:text-2xl font-bold mb-2" id="modalTitle">Confirm Redemption</h3>
+        <p class="text-slate-400 text-sm mb-3" id="modalDesc"></p>
+        <div class="bg-slate-800 rounded-xl p-3 sm:p-4 mb-4 sm:mb-5">
+          <div class="text-xs text-slate-400 mb-1">Coins required</div>
+          <div class="text-xl sm:text-2xl font-bold text-indigo-400" id="modalCoins">0</div>
+          <div class="text-xs text-slate-500 mt-1.5">⚠️ Coins will be deducted immediately.</div>
+        </div>
+        <div class="text-xs text-slate-500 mb-4 text-left bg-slate-800/50 p-3 rounded-lg">Enter your UPI ID or account number below so we can process your reward.</div>
+        <input id="paymentDetail" type="text" placeholder="UPI ID or Account Number"
+          class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm placeholder-slate-500 focus:border-indigo-500 mb-4 transition-colors"/>
+        <div class="flex gap-3">
+          <button onclick="closeModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-semibold text-sm transition-colors">Cancel</button>
+          <button onclick="confirmRedeem()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-semibold text-sm transition-colors">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed bottom-24 lg:bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:w-auto text-white px-5 py-3 rounded-xl shadow-xl font-medium z-50 text-center sm:text-left text-sm"></div>
+
+  <!-- Mobile nav -->
+  <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 flex z-20">
+    <a href="dashboard.html" class="flex-1 flex flex-col items-center py-3 text-slate-400 text-xs gap-0.5"><span class="text-lg">🏠</span>Home</a>
+    <a href="articles.html" class="flex-1 flex flex-col items-center py-3 text-slate-400 text-xs gap-0.5"><span class="text-lg">📚</span>Articles</a>
+    <a href="redeem.html" class="flex-1 flex flex-col items-center py-3 text-indigo-400 text-xs gap-0.5"><span class="text-lg">🎁</span>Redeem</a>
+    <a href="leaderboard.html" class="flex-1 flex flex-col items-center py-3 text-slate-400 text-xs gap-0.5"><span class="text-lg">🏆</span>Top</a>
+    <a href="chat.html" class="flex-1 flex flex-col items-center py-3 text-slate-400 text-xs gap-0.5"><span class="text-lg">🌍</span>Chat</a>
+  </div>
+
+  <script src="js/supabase.js"></script><script src="js/auth.js"></script><script src="js/coins.js"></script>
+  <script>
+    const REWARDS=[
+      {id:'r10',label:'₹10 Reward',emoji:'💵',coins:1000,desc:'₹10 sent to your UPI',color:'emerald'},
+      {id:'r25',label:'₹25 Reward',emoji:'💰',coins:2500,desc:'₹25 sent to your UPI',color:'indigo'},
+      {id:'r50',label:'₹50 Reward',emoji:'🤑',coins:5000,desc:'₹50 sent to your UPI',color:'purple'}
+    ];
+    let currentUser=null,userBalance=0,pendingReward=null;
+    const CM={emerald:'from-emerald-900/40 to-emerald-800/20 border-emerald-700/40',indigo:'from-indigo-900/40 to-indigo-800/20 border-indigo-700/40',purple:'from-purple-900/40 to-purple-800/20 border-purple-700/40',yellow:'from-yellow-900/40 to-yellow-800/20 border-yellow-700/40',orange:'from-orange-900/40 to-orange-800/20 border-orange-700/40',blue:'from-blue-900/40 to-blue-800/20 border-blue-700/40'};
+    const BM={emerald:'bg-emerald-600 hover:bg-emerald-500',indigo:'bg-indigo-600 hover:bg-indigo-500',purple:'bg-purple-600 hover:bg-purple-500',yellow:'bg-yellow-600 hover:bg-yellow-500',orange:'bg-orange-600 hover:bg-orange-500',blue:'bg-blue-600 hover:bg-blue-500'};
+    function showToast(msg,color='emerald'){const t=document.getElementById('toast');t.textContent=msg;t.className=`fixed bottom-24 lg:bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:w-auto bg-${color}-700 text-white px-5 py-3 rounded-xl shadow-xl font-medium z-50 text-center sm:text-left text-sm`;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),4000);}
+    function renderRewards(){
+      document.getElementById('rewardGrid').innerHTML=REWARDS.map(r=>{
+        const can=userBalance>=r.coins;
+        const pct=Math.min((userBalance/r.coins)*100,100);
+        return `<div class="ch bg-gradient-to-br ${CM[r.color]} border rounded-2xl p-5 sm:p-6${!can?' opacity-60':''}">
+          <div class="text-3xl sm:text-4xl mb-2 sm:mb-3">${r.emoji}</div>
+          <h3 class="font-bold text-lg sm:text-xl mb-1">${r.label}</h3>
+          <p class="text-slate-400 text-xs sm:text-sm mb-3 sm:mb-4">${r.desc}</p>
+          <div class="bg-slate-800/60 rounded-xl p-3 mb-4">
+            <div class="flex justify-between text-xs text-slate-400 mb-1.5"><span>Required</span><span>${r.coins.toLocaleString()} coins</span></div>
+            <div class="w-full bg-slate-700 rounded-full h-1.5"><div class="h-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-emerald-500" style="width:${pct}%"></div></div>
+            ${!can?`<div class="text-xs text-slate-500 mt-1">Need ${(r.coins-userBalance).toLocaleString()} more</div>`:''}
+          </div>
+          <button onclick="${can?`openModal('${r.id}')`:''}" class="${BM[r.color]} text-white w-full py-2.5 sm:py-3 rounded-xl font-semibold text-sm transition-all${!can?' opacity-50 cursor-not-allowed':' hover:scale-105'}" ${!can?'disabled':''}>
+            ${can?'Redeem Now':'Not Enough Coins'}
+          </button>
+        </div>`;
+      }).join('');
+    }
+    function openModal(id){pendingReward=REWARDS.find(r=>r.id===id);if(!pendingReward)return;document.getElementById('modalIcon').textContent=pendingReward.emoji;document.getElementById('modalTitle').textContent=pendingReward.label;document.getElementById('modalDesc').textContent=pendingReward.desc;document.getElementById('modalCoins').textContent=pendingReward.coins.toLocaleString()+' coins';document.getElementById('paymentDetail').value='';document.getElementById('confirmModal').classList.remove('hidden');}
+    function closeModal(){document.getElementById('confirmModal').classList.add('hidden');pendingReward=null;}
+    async function confirmRedeem(){
+      if(!pendingReward)return;
+      const detail=document.getElementById('paymentDetail').value.trim();
+      if(!detail){showToast('Please enter your payment details.','red');return;}
+
+      // Disable confirm button to prevent double clicks
+      const btn=document.querySelector('#confirmModal button[onclick="confirmRedeem()"]');
+      if(btn){btn.disabled=true;btn.textContent='Processing...';}
+
+      // Re-check balance is still sufficient
+      const freshBalance=await Coins.getBalance(currentUser.id);
+      if(freshBalance<pendingReward.coins){
+        showToast('Insufficient coins.','red');
+        if(btn){btn.disabled=false;btn.textContent='Confirm';}
+        return;
+      }
+
+      // Deduct coins FIRST
+      const newBalance=freshBalance-pendingReward.coins;
+      const{error:coinErr}=await supabaseClient.from('users').update({coins:newBalance}).eq('id',currentUser.id);
+      if(coinErr){showToast('Failed to deduct coins. Try again.','red');if(btn){btn.disabled=false;btn.textContent='Confirm';}return;}
+
+      // Then insert the request
+      const{error:reqErr}=await supabaseClient.from('redeem_requests').insert({
+        user_id:currentUser.id,
+        reward:`${pendingReward.label} - ${detail}`,
+        coins_used:pendingReward.coins,
+        status:'pending'
+      });
+      if(reqErr){
+        // Rollback: refund coins if insert failed
+        await supabaseClient.from('users').update({coins:freshBalance}).eq('id',currentUser.id);
+        showToast('Failed to submit request. Coins refunded.','red');
+        if(btn){btn.disabled=false;btn.textContent='Confirm';}
+        return;
+      }
+
+      // Update UI immediately
+      userBalance=newBalance;
+      document.getElementById('topBarCoins').textContent=userBalance.toLocaleString();
+      document.getElementById('balanceDisplay').textContent=userBalance.toLocaleString();
+      renderRewards();
+      closeModal();
+      showToast('🎉 Request submitted! Coins deducted. Processing within 24-48 hours.');
+      loadHistory();
+    }
+    async function loadHistory(){
+      const{data,error}=await supabaseClient.from('redeem_requests').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(10);
+      const sc={pending:'bg-yellow-900/40 text-yellow-300 border-yellow-700/40',approved:'bg-emerald-900/40 text-emerald-300 border-emerald-700/40',rejected:'bg-red-900/40 text-red-300 border-red-700/40'};
+      if(error||!data||data.length===0){document.getElementById('historyList').innerHTML=`<div class="text-center py-8 text-slate-500"><div class="text-3xl mb-2">📭</div><p class="text-sm">No redemptions yet.</p></div>`;return;}
+      document.getElementById('historyList').innerHTML=data.map(req=>`<div class="bg-slate-900 border border-slate-800 rounded-xl p-4 sm:p-5 flex items-center justify-between gap-3">
+        <div class="min-w-0"><div class="font-medium text-sm truncate mb-1">${req.reward}</div><div class="text-slate-500 text-xs">${new Date(req.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div></div>
+        <div class="text-right flex-shrink-0"><div class="text-indigo-400 font-bold text-sm mb-1">-${req.coins_used.toLocaleString()} 🪙</div><span class="border text-xs px-2 py-0.5 rounded-lg capitalize font-semibold ${sc[req.status]||sc.pending}">${req.status}</span></div>
+      </div>`).join('');
+    }
+    async function init(){
+      currentUser=await Auth.requireAuth();if(!currentUser)return;
+      userBalance=await Coins.getBalance(currentUser.id);
+      document.getElementById('topBarCoins').textContent=userBalance.toLocaleString();
+      document.getElementById('balanceDisplay').textContent=userBalance.toLocaleString();
+      renderRewards();loadHistory();
+    }
+    init();
+  </script>
+</body>
+</html>

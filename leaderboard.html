@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2179785225331533" crossorigin="anonymous"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Leaderboard — CoinRewards Top Earners</title>
+  <meta name="description" content="See the top coin earners on CoinRewards. Join thousands of readers earning real rewards every day."/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>*{box-sizing:border-box}body{font-family:'Space Grotesk',sans-serif}.df{font-family:'Syne',sans-serif}.gt{background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}@keyframes tb{0%,100%{transform:scale(1) rotate(0)}25%{transform:scale(1.1) rotate(-5deg)}75%{transform:scale(1.1) rotate(5deg)}}.tb{animation:tb 2s ease-in-out infinite}@keyframes ri{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}.ri{animation:ri .4s ease both}</style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+    <a href="index.html" class="flex items-center gap-2">
+      <span class="text-xl">🪙</span>
+      <span class="df font-bold gt text-sm sm:text-base">CoinRewards</span>
+    </a>
+    <div class="flex items-center gap-2">
+      <div id="guestNav" class="flex gap-2">
+        <a href="login.html" class="text-slate-400 hover:text-white text-sm transition-colors hidden sm:block">Login</a>
+        <a href="login.html" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-xl text-xs font-semibold transition-colors">Join Free</a>
+      </div>
+      <div id="userNav" class="hidden items-center gap-2">
+        <div class="flex items-center gap-1.5 bg-slate-800 px-3 py-2 rounded-xl">
+          <span>🪙</span><span class="font-bold text-emerald-400 text-sm" id="topBarCoins">---</span>
+        </div>
+        <a href="dashboard.html" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-xl text-xs font-semibold transition-colors">Dashboard</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+    <div class="text-center mb-8 sm:mb-10">
+      <div class="tb inline-block text-5xl sm:text-6xl mb-3 sm:mb-4">🏆</div>
+      <h1 class="df text-3xl sm:text-4xl font-bold mb-2">Leaderboard</h1>
+      <p class="text-slate-400 text-sm sm:text-base">Top coin earners on CoinRewards this month.</p>
+    </div>
+
+    <!-- AdSense -->
+    <div class="mb-6">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2179785225331533" data-ad-slot="" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <!-- Your rank (only if logged in) -->
+    <div id="yourRankCard" class="hidden bg-indigo-900/30 border border-indigo-700/40 rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8 flex items-center justify-between gap-3">
+      <div><div class="text-xs text-indigo-400 font-semibold uppercase tracking-wider mb-1">Your Position</div><div class="font-bold text-sm sm:text-base" id="yourRankText">---</div></div>
+      <div class="text-right flex-shrink-0"><div class="text-xs text-slate-400 mb-1">Your coins</div><div class="text-xl sm:text-2xl font-bold text-emerald-400" id="yourCoinsText">---</div></div>
+    </div>
+
+    <!-- Guest CTA -->
+    <div id="guestRankCTA" class="bg-gradient-to-r from-indigo-900/40 to-emerald-900/30 border border-indigo-700/30 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div><div class="font-semibold text-sm mb-0.5">🏅 Want to appear on the leaderboard?</div><div class="text-slate-400 text-xs">Create a free account and start reading to earn coins.</div></div>
+      <a href="login.html" class="flex-shrink-0 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-colors">Join Free →</a>
+    </div>
+
+    <!-- Leaderboard list -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+      <div class="border-b border-slate-800 px-4 sm:px-5 py-3 sm:py-4 flex items-center justify-between">
+        <h2 class="font-bold text-sm sm:text-base">🥇 Top 50 Players</h2>
+        <button onclick="loadLeaderboard()" class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">↻ Refresh</button>
+      </div>
+      <div id="leaderboardList" class="divide-y divide-slate-800">
+        <div class="text-center py-12 text-slate-500"><div class="text-4xl mb-3">⏳</div><p class="text-sm">Loading...</p></div>
+      </div>
+    </div>
+
+    <!-- Guest footer CTA -->
+    <div id="footerCTA" class="mt-8 text-center bg-gradient-to-br from-indigo-900/30 to-emerald-900/20 border border-indigo-700/30 rounded-2xl p-6 sm:p-8">
+      <div class="text-3xl mb-3">🚀</div>
+      <h2 class="df text-xl sm:text-2xl font-bold mb-2">Join the Leaderboard</h2>
+      <p class="text-slate-400 text-sm mb-5">Read articles, earn coins, and compete with thousands of readers worldwide.</p>
+      <a href="login.html" class="inline-block bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3.5 rounded-xl font-bold transition-all hover:scale-105 w-full sm:w-auto text-center">Start Earning Free →</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 py-6 px-4 mt-4">
+    <div class="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+      <div class="flex items-center gap-2"><span>🪙</span><span class="df font-bold gt">CoinRewards</span></div>
+      <div class="flex gap-4">
+        <a href="articles.html" class="hover:text-white transition-colors">Articles</a>
+        <a href="about.html" class="hover:text-white transition-colors">About</a>
+        <a href="terms.html" class="hover:text-white transition-colors">Terms</a>
+        <a href="privacy.html" class="hover:text-white transition-colors">Privacy</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/coins.js"></script>
+  <script>
+    let currentUser=null;
+    const rE=['🥇','🥈','🥉'],mC=['text-yellow-400','text-slate-300','text-orange-400'];
+    const aC=['bg-indigo-600','bg-emerald-600','bg-purple-600','bg-pink-600','bg-yellow-600','bg-cyan-600','bg-orange-600'];
+    function me(e){let h=0;for(let c of e)h=(h*31+c.charCodeAt(0))&0xffffffff;return e.charAt(0).toUpperCase()+'|'+aC[Math.abs(h)%aC.length];}
+    function mask(e){const[l,d]=e.split('@');return(l.length>3?l.slice(0,3):l.slice(0,1))+'***@'+d;}
+
+    async function loadLeaderboard(){
+      const{data,error}=await supabaseClient.from('users').select('id,email,coins').order('coins',{ascending:false}).limit(50);
+      if(error||!data){document.getElementById('leaderboardList').innerHTML=`<div class="text-center py-12 text-slate-500"><div class="text-4xl mb-3">❌</div><p class="text-sm">Failed to load.</p></div>`;return;}
+
+      if(currentUser){
+        const userIdx=data.findIndex(u=>u.id===currentUser.id);
+        if(userIdx!==-1){
+          document.getElementById('yourRankCard').classList.remove('hidden');
+          document.getElementById('yourRankText').textContent=`#${userIdx+1} — ${mask(data[userIdx].email)}`;
+          document.getElementById('yourCoinsText').textContent=(data[userIdx].coins||0).toLocaleString();
+        }
+      }
+
+      if(!data.length){document.getElementById('leaderboardList').innerHTML=`<div class="text-center py-12 text-slate-500 text-sm">No users yet. Be the first!</div>`;return;}
+
+      document.getElementById('leaderboardList').innerHTML=data.map((u,i)=>{
+        const isMe=currentUser&&u.id===currentUser.id;
+        const[init,color]=me(u.email).split('|');
+        return `<div class="ri px-4 sm:px-5 py-3.5 sm:py-4 flex items-center gap-3 sm:gap-4 ${isMe?'bg-indigo-900/20':'hover:bg-slate-800/40'} transition-colors" style="animation-delay:${i*.04}s">
+          <div class="w-8 sm:w-10 text-center font-bold text-sm sm:text-base flex-shrink-0 ${i<3?mC[i]:'text-slate-400'}">${i<3?rE[i]:`#${i+1}`}</div>
+          <div class="${color} w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">${init}</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-xs sm:text-sm truncate">${mask(u.email)}${isMe?'<span class="ml-2 text-xs bg-indigo-600 px-1.5 py-0.5 rounded-full text-white">You</span>':''}</div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="font-bold text-emerald-400 text-sm sm:text-base">${(u.coins||0).toLocaleString()}</div>
+            <div class="text-slate-500 text-xs">coins</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    async function init(){
+      // Load leaderboard immediately — no auth needed
+      loadLeaderboard();
+
+      // Check auth in background
+      const user=await Auth.getUser();
+      currentUser=user;
+
+      if(user){
+        document.getElementById('guestNav').classList.add('hidden');
+        document.getElementById('userNav').classList.remove('hidden');
+        document.getElementById('guestRankCTA').classList.add('hidden');
+        document.getElementById('footerCTA').classList.add('hidden');
+        document.getElementById('topBarCoins').textContent=(await Coins.getBalance(user.id)).toLocaleString();
+        // Reload with user context to show "You" badge
+        loadLeaderboard();
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
