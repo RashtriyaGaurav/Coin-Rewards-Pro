@@ -60,34 +60,32 @@
     <h1 id="articleTitle" class="df text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight mb-4 sm:mb-6"></h1>
     <p id="articleExcerpt" class="text-base sm:text-lg text-slate-300 mb-6 sm:mb-8 leading-relaxed border-l-4 border-indigo-600 pl-4 italic"></p>
 
-    <!-- AdSense mid-article - Fixed with proper ad slot -->
-    <div class="my-6">
-      <ins class="adsbygoogle"
-           style="display:block; text-align:center;"
-           data-ad-client="ca-pub-2179785225331533"
-           data-ad-slot="YOUR_AD_SLOT_ID_1"  <!-- Replace with your actual ad slot ID -->
-           data-ad-format="fluid"
-           data-ad-layout="in-article"></ins>
-      <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
-    </div>
+  
+<!-- square ads -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-2179785225331533"
+     data-ad-slot="1507326584"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
 
     <!-- Article body — fully readable by everyone -->
     <div class="pf article-content text-slate-300 leading-relaxed text-base sm:text-[1.05rem]" id="articleBody"></div>
 
-    <!-- AdSense after article - Fixed with proper ad slot -->
-    <div class="mt-8">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-2179785225331533"
-           data-ad-slot="YOUR_AD_SLOT_ID_2"  <!-- Replace with your actual ad slot ID -->
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
-    </div>
+    <!-- AdSense after article -->
+<!-- square ads -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-2179785225331533"
+     data-ad-slot="1507326584"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
 
     <!-- ── Reward / CTA section ── -->
     <div class="mt-10 sm:mt-12 border-t border-slate-800 pt-8 sm:pt-10">
@@ -292,20 +290,6 @@
     }
 
     init();
-  </script>
-  
-  <!-- Additional script to ensure ads are loaded after dynamic content -->
-  <script>
-    // This ensures ads are pushed again if needed after dynamic content loads
-    document.addEventListener('DOMContentLoaded', function() {
-      // Small delay to ensure DOM is fully ready
-      setTimeout(function() {
-        if (typeof adsbygoogle !== 'undefined') {
-          // Push ads again if they weren't loaded initially
-          (adsbygoogle = window.adsbygoogle || []).push({});
-        }
-      }, 1000);
-    });
   </script>
 </body>
 </html>
