@@ -180,15 +180,15 @@
             <div class="space-y-4">
               <div>
                 <div class="flex justify-between text-xs sm:text-sm mb-1.5">
-                  <span class="text-slate-400">₹10 Reward (1000 coins)</span>
-                  <span id="prog10Label" class="text-slate-400">0 / 1000</span>
+                  <span class="text-slate-400">₹10 Reward (2200 coins)</span>
+                  <span id="prog10Label" class="text-slate-400">0 / 2200</span>
                 </div>
                 <div class="w-full bg-slate-700 rounded-full h-2.5"><div id="prog10Bar" class="bg-indigo-500 h-2.5 rounded-full transition-all duration-500" style="width:0%"></div></div>
               </div>
               <div>
                 <div class="flex justify-between text-xs sm:text-sm mb-1.5">
-                  <span class="text-slate-400">₹25 Reward (2500 coins)</span>
-                  <span id="prog25Label" class="text-slate-400">0 / 2500</span>
+                  <span class="text-slate-400">₹25 Reward (5500 coins)</span>
+                  <span id="prog25Label" class="text-slate-400">0 / 5500</span>
                 </div>
                 <div class="w-full bg-slate-700 rounded-full h-2.5"><div id="prog25Bar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width:0%"></div></div>
               </div>
@@ -225,10 +225,10 @@
       document.getElementById('coinBalance').textContent=coins.toLocaleString();
       document.getElementById('topBarCoins').textContent=coins.toLocaleString();
       const el=document.getElementById('coinEmoji');el.classList.add('cb');setTimeout(()=>el.classList.remove('cb'),400);
-      document.getElementById('prog10Bar').style.width=Math.min((coins/1000)*100,100)+'%';
-      document.getElementById('prog25Bar').style.width=Math.min((coins/2500)*100,100)+'%';
-      document.getElementById('prog10Label').textContent=`${Math.min(coins,1000).toLocaleString()} / 1000`;
-      document.getElementById('prog25Label').textContent=`${Math.min(coins,2500).toLocaleString()} / 2500`;
+      document.getElementById('prog10Bar').style.width=Math.min((coins/2200)*100,100)+'%';
+      document.getElementById('prog25Bar').style.width=Math.min((coins/5500)*100,100)+'%';
+      document.getElementById('prog10Label').textContent=`${Math.min(coins,2200).toLocaleString()} / 2200`;
+      document.getElementById('prog25Label').textContent=`${Math.min(coins,5500).toLocaleString()} / 5500`;
     }
     function startCountdown(lastClaim){
       document.getElementById('claimReady').classList.add('hidden');

@@ -86,11 +86,11 @@
 
   <script src="js/supabase.js"></script><script src="js/auth.js"></script><script src="js/coins.js"></script>
   <script>
-    const REWARDS=[
-      {id:'r10',label:'₹10 Reward',emoji:'💵',coins:1000,desc:'₹10 sent to your UPI',color:'emerald'},
-      {id:'r25',label:'₹25 Reward',emoji:'💰',coins:2500,desc:'₹25 sent to your UPI',color:'indigo'},
-      {id:'r50',label:'₹50 Reward',emoji:'🤑',coins:5000,desc:'₹50 sent to your UPI',color:'purple'}
-    ];
+    const REWARDS = [
+  { id: 'r10', label: '₹10 Reward', emoji: '💵', coins: 2200, desc: '₹10 sent to your UPI', color: 'emerald' },
+  { id: 'r25', label: '₹25 Reward', emoji: '💰', coins: 5500, desc: '₹25 sent to your UPI', color: 'indigo' },
+  { id: 'r50', label: '₹50 Reward', emoji: '🤑', coins: 11000, desc: '₹50 sent to your UPI', color: 'purple' }
+];
     let currentUser=null,userBalance=0,pendingReward=null;
     const CM={emerald:'from-emerald-900/40 to-emerald-800/20 border-emerald-700/40',indigo:'from-indigo-900/40 to-indigo-800/20 border-indigo-700/40',purple:'from-purple-900/40 to-purple-800/20 border-purple-700/40',yellow:'from-yellow-900/40 to-yellow-800/20 border-yellow-700/40',orange:'from-orange-900/40 to-orange-800/20 border-orange-700/40',blue:'from-blue-900/40 to-blue-800/20 border-blue-700/40'};
     const BM={emerald:'bg-emerald-600 hover:bg-emerald-500',indigo:'bg-indigo-600 hover:bg-indigo-500',purple:'bg-purple-600 hover:bg-purple-500',yellow:'bg-yellow-600 hover:bg-yellow-500',orange:'bg-orange-600 hover:bg-orange-500',blue:'bg-blue-600 hover:bg-blue-500'};
